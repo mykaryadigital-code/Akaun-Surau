@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Kewangan Surau & Masjid",
+  "description": "Sistem Pengurusan Kewangan & Akaun Surau/Masjid berasaskan React, Tailwind CSS, dengan penyegerakan automatik, laporan bulanan, cetakan resit rasmi Bahasa Melayu, dan eksport Google Sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
