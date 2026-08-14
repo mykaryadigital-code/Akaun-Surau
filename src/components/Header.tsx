@@ -87,18 +87,22 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Org Title & Badge */}
           <div className="flex items-center gap-3">
+            {settings.org.logoUrl && (
+              <img src={settings.org.logoUrl} alt="Logo" className="h-16 sm:h-20 w-auto object-contain bg-white rounded-lg p-1 shrink-0 shadow-sm" />
+            )}
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                  {settings.org.name}
-                </h1>
-                <span className="inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30">
-                  {settings.org.regNo}
-                </span>
-              </div>
-              <div className={`text-xs ${theme.headerAccent} mt-0.5 flex flex-col gap-0.5`}>
-                <span>{settings.org.kariah}</span>
-                <span>{settings.org.bankName} ({settings.org.bankAccount})</span>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-0.5">
+                {settings.org.name}
+              </h1>
+              <div className={`text-xs ${theme.headerAccent} flex flex-col gap-1`}>
+                <span className="font-medium text-white/90 sm:text-sm">{settings.org.kariah}</span>
+                <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/20 border border-white/20 text-[10px] font-bold text-white tracking-wide">
+                    {settings.org.regNo}
+                  </span>
+                  <span className="opacity-50 hidden sm:inline">•</span>
+                  <span>{settings.org.bankName} ({settings.org.bankAccount})</span>
+                </div>
               </div>
             </div>
           </div>

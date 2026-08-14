@@ -15,8 +15,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     bankAccount: '12029010045678',
   },
   ajk: {
-    pengerusi: 'Haji Ahmad Bin Othman',
-    bendahari: 'Haji Razali Bin Abdullah',
+    pengerusi: 'En.Karim Bin Syamsuddin',
+    bendahari: 'Haji Bakil Bin Luki',
     setiausaha: 'Encik Zulkifli Bin Mansor',
   },
   openingBalances: {
@@ -37,7 +37,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     'Lain-lain Penerimaan',
   ],
   categoriesOut: [
-    'Bil Elektrik & Air (TNB / SYABAS)',
+    'Bil Elektrik & Air',
     'Saguhati Penceramah/Imam',
     'Penyelenggaraan & Pembaikan',
     'Aktiviti Program & Kuliah',
@@ -78,7 +78,7 @@ export const INITIAL_TRANSACTIONS: Transaction[] = [
     refNo: 'INV-202608-0001',
     date: '2026-08-04',
     type: 'OUT',
-    category: 'Bil Elektrik & Air (TNB / SYABAS)',
+    category: 'Bil Elektrik & Air',
     amount: 420.5,
     paymentMethod: 'Pindahan Bank',
     partyName: 'Tenaga Nasional Berhad',

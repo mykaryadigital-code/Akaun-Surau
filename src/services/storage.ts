@@ -16,16 +16,23 @@ export function loadSettings(): AppSettings {
     const parsed = JSON.parse(data);
     const merged = { ...DEFAULT_SETTINGS, ...parsed };
     
+    // Override name and pengerusi based on new requirements
+    merged.org.name = 'Surau Al-Jannah';
+    merged.ajk.pengerusi = 'En.Karim Bin Syamsuddin';
+    merged.ajk.bendahari = 'Haji Bakil Bin Luki';
+
     // Pastikan kategori baru dimasukkan sekiranya belum ada untuk pengguna sedia ada
     if (merged.categoriesIn && !merged.categoriesIn.includes('Duit Tabung Surau/Masjid')) {
       merged.categoriesIn = ['Duit Tabung Surau/Masjid', ...merged.categoriesIn];
     }
     
-    // Perbetulkan ejaan Saguhati sekiranya pengguna menggunakan data lama
+    // Perbetulkan ejaan Saguhati dan Bil Elektrik sekiranya pengguna menggunakan data lama
     if (merged.categoriesOut) {
-      merged.categoriesOut = merged.categoriesOut.map((cat: string) => 
-        cat === 'Saghati Penceramah & Imam' ? 'Saguhati Penceramah/Imam' : cat
-      );
+      merged.categoriesOut = merged.categoriesOut.map((cat: string) => {
+        if (cat === 'Saghati Penceramah & Imam') return 'Saguhati Penceramah/Imam';
+        if (cat === 'Bil Elektrik & Air (TNB / SYABAS)') return 'Bil Elektrik & Air';
+        return cat;
+      });
     }
     
     
@@ -51,10 +58,13 @@ export function loadTransactions(): Transaction[] {
     const parsed = JSON.parse(data);
     let txs = Array.isArray(parsed) ? parsed : INITIAL_TRANSACTIONS;
     
-    // Perbetulkan ejaan Saguhati dalam data transaksi sedia ada
+    // Perbetulkan ejaan Saguhati dan Bil Elektrik dalam data transaksi sedia ada
     txs = txs.map(tx => {
       if (tx.category === 'Saghati Penceramah & Imam') {
         return { ...tx, category: 'Saguhati Penceramah/Imam' };
+      }
+      if (tx.category === 'Bil Elektrik & Air (TNB / SYABAS)') {
+        return { ...tx, category: 'Bil Elektrik & Air' };
       }
       return tx;
     });

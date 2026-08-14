@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { AppSettings, Transaction } from '../types';
 import { getTheme } from '../utils/theme';
+import { DashboardCharts } from './DashboardCharts';
 
 interface DashboardProps {
   settings: AppSettings;
@@ -171,6 +172,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Analytics Charts */}
+      <DashboardCharts transactions={transactions} />
 
       {/* Quick Action & Recent Transactions Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -196,6 +196,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
 
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Logo Surau (Pilihan)</label>
+                <div className="flex items-center gap-3">
+                  {org.logoUrl && (
+                    <div className="relative w-12 h-12 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0">
+                      <img src={org.logoUrl} alt="Logo Preview" className="w-full h-full object-contain p-1" />
+                      <button 
+                        type="button"
+                        onClick={() => setOrg({ ...org, logoUrl: '' })}
+                        className="absolute -top-1 -right-1 bg-rose-500 text-white rounded-full p-0.5"
+                        title="Buang Logo"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setOrg({ ...org, logoUrl: reader.result as string });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="w-full text-xs text-slate-500 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer border border-slate-200 rounded-xl"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">

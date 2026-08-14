@@ -16,6 +16,7 @@ export interface OrganizationInfo {
   address: string;
   bankName: string;
   bankAccount: string;
+  logoUrl?: string;
 }
 
 export interface AJKInfo {
