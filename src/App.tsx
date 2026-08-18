@@ -81,6 +81,15 @@ export default function App() {
     localStorage.removeItem('surau_kewangan_transactions_v1');
   };
 
+  // Handler to Clear Data completely
+  const handleClearData = () => {
+    setSettings((prev) => ({
+      ...prev,
+      openingBalances: { total: 0, bank: 0, cash: 0 },
+    }));
+    setTransactions([]);
+  };
+
   // Handler to Import Backup JSON
   const handleImportBackup = (importedData: any) => {
     if (importedData.settings) {
@@ -159,6 +168,7 @@ export default function App() {
           onSaveSettings={setSettings}
           onClose={() => setSettingsOpen(false)}
           onResetData={handleResetData}
+          onClearData={handleClearData}
           onImportBackup={handleImportBackup}
           allTransactions={transactions}
         />
