@@ -1,12 +1,12 @@
 {
-  "projectId": "project-5b5c4c21-f718-46e7-987",
-  "appId": "1:592806080582:web:62fd58205d258f9dec5a47",
-  "apiKey": "AIzaSyBLxTq2XGGtfFyNFmfd1l419hqzY9JBWsk",
-  "authDomain": "project-5b5c4c21-f718-46e7-987.firebaseapp.com",
+  "projectId": "akaun-surau",
+  "appId": "1:681580896680:web:8eb2b5e498fdf68d6c7d9d",
+  "apiKey": "AIzaSyAIkC-1GGbEOv4VFc_fL5jyNiLLMOZrFkY",
+  "authDomain": "akaun-surau.firebaseapp.com",
   "firestoreDatabaseId": "ai-studio-sistemkewangansu-21245cda-615c-4689-801e-66fda632fa6d",
-  "storageBucket": "project-5b5c4c21-f718-46e7-987.firebasestorage.app",
-  "messagingSenderId": "592806080582",
+  "storageBucket": "akaun-surau.firebasestorage.app",
+  "messagingSenderId": "681580896680",
   "measurementId": "",
-  "oAuthClientId": "592806080582-aui2dekdarf43dd1pkvksokpdvu2irvq.apps.googleusercontent.com",
+  "oAuthClientId": "681580896680-v40m2dot7c1a1qc69b9mu59n2uqh0mmu.apps.googleusercontent.com",
   "recaptchaSiteKey": ""
 }
