@@ -79,7 +79,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
           <div className="space-y-2">
             <p className="font-bold text-slate-800 text-[13px] flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              Akses Penuh Perusahaan:
+              Akses Penuh Akaun Masjid/Surau:
             </p>
             <ul className="space-y-1.5 text-[13px] text-slate-600">
               <li className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
               className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-slate-200"
             >
               <CreditCard className="w-4 h-4" />
-              {paymentVerifying ? 'Mengesahkan...' : 'Bayar Sekarang (ToyyibPay)'}
+              {paymentVerifying ? 'Mengesahkan...' : 'Langgan Sekarang (ToyyibPay)'}
             </button>
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
               <ShieldAlert className="w-3 h-3" />
