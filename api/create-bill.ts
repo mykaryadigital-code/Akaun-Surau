@@ -19,7 +19,7 @@ export default async function handler(req: any, res: any) {
     formData.append('billName', 'Langganan Akaun Surau'); // Max 30 chars limit
     formData.append('billDescription', 'Langganan Tahunan SaaS (12 Bulan)');
     formData.append('billPriceSetting', '1'); // Fixed amount
-    formData.append('billPayorInfo', '1');    // Required payer info
+    formData.append('billPayorInfo', '0');    // 0 = Allow user to edit info, 1 = Fixed info
     formData.append('billAmount', (amount || 12000).toString()); 
     formData.append('billReturnUrl', returnUrl || 'https://akaun-surau.vercel.app');
     formData.append('billCallbackUrl', returnUrl ? `${returnUrl}/api/webhook/toyyibpay` : 'https://akaun-surau.vercel.app/api/webhook/toyyibpay');
