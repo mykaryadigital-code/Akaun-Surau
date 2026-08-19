@@ -106,8 +106,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert('Saiz fail melebihi 2MB. Sila pilih fail resit yang lebih kecil.');
+      if (file.size > 700 * 1024) {
+        alert('Saiz fail melebihi 700KB (Had Maksima Cloud Firestore). Sila pilih fail resit yang lebih kecil.');
         return;
       }
       const reader = new FileReader();

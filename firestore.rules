@@ -2,72 +2,18 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 1. Global Safety Net
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     // Helper Functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
     function isOwner(orgId) {
-      return isSignedIn() && request.auth.uid == orgId;
-    }
-
-    function isValidId(id) {
-      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
-    // Validation for SurauSettings
-    function isValidSurauSettings(data) {
-      return data.get('org', {}).get('name', '') is string;
-    }
-
-    // Validation for Transaction
-    function isValidTransaction(data) {
-      return data.get('refNo', '') is string &&
-      data.get('type', '') in ['IN', 'OUT'] &&
-      data.get('amount', 0) is number;
+      return request.auth != null && request.auth.uid == orgId;
     }
 
     // Master Match: SurauSettings
     match /surau_settings/{orgId} {
-      allow read: if isOwner(orgId);
-      
-      allow create: if isOwner(orgId) &&
-                    isValidId(orgId) &&
-                    isValidSurauSettings(incoming());
-                    
-      allow update: if isOwner(orgId) &&
-                    isValidId(orgId) &&
-                    isValidSurauSettings(incoming());
-                    
-      allow delete: if isOwner(orgId);
+      allow read, write: if isOwner(orgId);
       
       // Subcollection: Transactions
       match /transactions/{transactionId} {
-        // Relational sync / Master Gate check
-        allow read: if isOwner(orgId);
-        
-        allow create: if isOwner(orgId) &&
-                      isValidId(transactionId) &&
-                      isValidTransaction(incoming());
-                      
-        allow update: if isOwner(orgId) &&
-                      isValidId(transactionId) &&
-                      isValidTransaction(incoming());
-                      
-        allow delete: if isOwner(orgId);
+        allow read, write: if isOwner(orgId);
       }
     }
   }

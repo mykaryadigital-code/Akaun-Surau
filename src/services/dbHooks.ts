@@ -67,11 +67,27 @@ export function useFirestoreData(user: User | null) {
     };
   }, [user]);
 
-  const updateSettings = async (newSettings: AppSettings) => {
+  const updateSettings = async (newSettings: AppSettings): Promise<void> => {
     if (!user) return;
     try {
       const settingsRef = doc(db, 'surau_settings', user.uid);
-      await setDoc(settingsRef, newSettings, { merge: true });
+      
+      // Deep clone and remove undefined values to prevent Firebase errors
+      const sanitizeObj = (obj: any): any => {
+        if (Array.isArray(obj)) return obj.map(sanitizeObj);
+        if (obj !== null && typeof obj === 'object') {
+          return Object.fromEntries(
+            Object.entries(obj)
+              .filter(([_, v]) => v !== undefined)
+              .map(([k, v]) => [k, sanitizeObj(v)])
+          );
+        }
+        return obj;
+      };
+      
+      const safeSettings = sanitizeObj(newSettings);
+      
+      await setDoc(settingsRef, safeSettings, { merge: true });
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, `surau_settings/${user.uid}`);
     }

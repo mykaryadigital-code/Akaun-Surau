@@ -25,7 +25,7 @@ import { exportBackupJSON } from '../services/storage';
 
 interface SettingsModalProps {
   settings: AppSettings;
-  onSaveSettings: (settings: AppSettings) => void;
+  onSaveSettings: (settings: AppSettings) => Promise<void>;
   onClose: () => void;
   onResetData: () => void;
   onClearData: () => void;
@@ -53,10 +53,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [theme, setTheme] = useState<AppTheme>(settings.theme);
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [resetConfirm, setResetConfirm] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const updatedSettings: AppSettings = {
       ...settings,
@@ -65,12 +66,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       openingBalances,
       theme,
     };
-    onSaveSettings(updatedSettings);
-    setSavedSuccess(true);
-    setTimeout(() => {
-      setSavedSuccess(false);
-      onClose();
-    }, 1200);
+    try {
+      setIsSaving(true);
+      await onSaveSettings(updatedSettings);
+      setSavedSuccess(true);
+      setTimeout(() => {
+        setSavedSuccess(false);
+        setIsSaving(false);
+        onClose();
+      }, 1200);
+    } catch (err: any) {
+      setIsSaving(false);
+      alert('Ralat semasa menyimpan: ' + err.message);
+    }
   };
 
   const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,9 +219,45 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
+                        // Check if file is too large before trying to compress (e.g. limit to 10MB to avoid browser crash)
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert('Saiz gambar terlalu besar. Sila pilih gambar bawah 10MB.');
+                          return;
+                        }
+                        
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                          setOrg({ ...org, logoUrl: reader.result as string });
+                          // Compress image using canvas
+                          const img = new Image();
+                          img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 300;
+                            const MAX_HEIGHT = 300;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                              if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                              }
+                            } else {
+                              if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                              }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx?.drawImage(img, 0, 0, width, height);
+                            
+                            // Get compressed base64 (0.7 quality)
+                            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                            setOrg({ ...org, logoUrl: compressedBase64 });
+                          };
+                          img.src = reader.result as string;
                         };
                         reader.readAsDataURL(file);
                       }
@@ -581,10 +625,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                disabled={isSaving}
+                className="px-5 py-2 font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 rounded-xl shadow-sm transition flex items-center gap-1.5"
               >
                 <Save className="w-4 h-4" />
-                Simpan Tetapan
+                {isSaving ? 'Menyimpan...' : 'Simpan Tetapan'}
               </button>
             </div>
           </div>
