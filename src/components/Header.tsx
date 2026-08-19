@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import {
   LayoutDashboard,
   FileSpreadsheet,
+  BookOpenCheck,
   Settings,
   Menu,
   X,
@@ -77,6 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = [
     { id: 'dashboard', label: 'Papan Pemuka', icon: LayoutDashboard },
+    { id: 'ledger', label: 'Buku Tunai', icon: BookOpenCheck },
     { id: 'report', label: 'Penyata Kewangan', icon: FileSpreadsheet },
   ];
 

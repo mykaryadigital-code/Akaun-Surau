@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { auth } from '../services/firebase';
+import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 const MosqueIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -6,19 +8,35 @@ const MosqueIcon = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
-    strokeWidth="2" 
+    strokeWidth="1.5" 
     strokeLinecap="round" 
     strokeLinejoin="round" 
     className={className}
   >
-    <path d="M2 21h20" />
-    <path d="M12 2v2" />
-    <path d="M12 4a5 5 0 0 1 5 5v4H7V9a5 5 0 0 1 5-5z" />
-    <path d="M7 13v8" />
-    <path d="M17 13v8" />
-    <path d="M12 15a3 3 0 0 0-3 3v3h6v-3a3 3 0 0 0-3-3z" />
-    <path d="M4 21V9l-1-2h2l-1 2" />
-    <path d="M20 21V9l-1-2h2l-1 2" />
+    <path d="M12 2v20" />
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+  </svg>
+);
+
+const GoogleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24">
+    <path
+      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      fill="#4285F4"
+    />
+    <path
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      fill="#34A853"
+    />
+    <path
+      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      fill="#FBBC05"
+    />
+    <path
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      fill="#EA4335"
+    />
+    <path d="M1 1h22v22H1z" fill="none" />
   </svg>
 );
 
@@ -28,16 +46,38 @@ interface LoginProps {
 }
 
 export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username === 'admin' && password === 'admin2026') {
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
       onLoginSuccess();
-    } else {
-      setError('Nama pengguna atau kata laluan tidak sah');
+    } catch (err: any) {
+      setError(err.message || 'Ralat log masuk dengan Google');
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (isRegistering) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+      onLoginSuccess();
+    } catch (err: any) {
+      if (err.code === 'auth/operation-not-allowed') {
+        setError('Log masuk E-mel/Kata Laluan belum diaktifkan di Firebase Console.');
+      } else if (err.code === 'auth/invalid-credential') {
+        setError('E-mel atau kata laluan tidak sah');
+      } else {
+        setError(err.message || 'Ralat pengesahan');
+      }
     }
   };
 
@@ -45,14 +85,38 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-200">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <MosqueIcon className="w-8 h-8" />
+          <div className="w-24 h-24 mx-auto mb-4">
+            <img 
+              src="https://res.cloudinary.com/g1dey3rs/image/upload/v1787072685/logo-masjid.png_a07p21.png" 
+              alt="Logo Masjid" 
+              className="w-full h-full object-contain rounded-2xl drop-shadow-sm"
+              onError={(e) => {
+                // Fallback to a styled div if image is not yet uploaded to public folder
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>';
+              }}
+            />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900">Log Masuk</h2>
-          <p className="text-slate-500 text-sm mt-2">{orgName}</p>
+          <h2 className="text-2xl font-extrabold text-slate-900">Log Masuk Masjid/Surau</h2>
+          <p className="text-slate-500 text-sm mt-2 font-medium">Sistem Pengurusan Kewangan</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <button
+          onClick={handleGoogleLogin}
+          type="button"
+          className="w-full bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 px-4 rounded-xl shadow-sm border border-slate-200 transition flex items-center justify-center gap-3 mb-6"
+        >
+          <GoogleIcon className="w-5 h-5" />
+          Teruskan dengan Google
+        </button>
+
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-slate-200"></div>
+          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Atau E-mel</span>
+          <div className="flex-1 h-px bg-slate-200"></div>
+        </div>
+
+        <form onSubmit={handleEmailAuth} className="space-y-4">
           {error && (
             <div className="bg-rose-50 text-rose-600 p-3 rounded-xl text-sm text-center font-medium">
               {error}
@@ -61,18 +125,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
           
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Nama Pengguna
+              Alamat E-mel
             </label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-slate-50 focus:bg-white text-slate-900"
-              placeholder="Masukkan nama pengguna"
+              placeholder="admin@surau.com"
               required
             />
           </div>
-
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1.5">
               Kata Laluan
@@ -86,14 +149,22 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
               required
             />
           </div>
-
           <button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition mt-4"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition mt-2"
           >
-            Log Masuk
+            {isRegistering ? 'Daftar Akaun Baru' : 'Log Masuk E-mel'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setIsRegistering(!isRegistering)}
+            className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+          >
+            {isRegistering ? 'Sudah ada akaun? Log masuk' : 'Belum ada akaun? Daftar di sini'}
+          </button>
+        </div>
       </div>
     </div>
   );

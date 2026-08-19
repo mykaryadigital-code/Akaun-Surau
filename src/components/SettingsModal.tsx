@@ -49,12 +49,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [ajk, setAjk] = useState({ ...settings.ajk });
   const [openingBalances, setOpeningBalances] = useState({ ...settings.openingBalances });
   const [theme, setTheme] = useState<AppTheme>(settings.theme);
-  const [googleAppsScriptUrl, setGoogleAppsScriptUrl] = useState(settings.googleAppsScriptUrl || '');
-  const [firebaseConfig, setFirebaseConfig] = useState({
-    apiKey: settings.firebaseConfig?.apiKey || '',
-    authDomain: settings.firebaseConfig?.authDomain || '',
-    projectId: settings.firebaseConfig?.projectId || '',
-  });
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
@@ -68,13 +62,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       ajk,
       openingBalances,
       theme,
-      googleAppsScriptUrl,
-      firebaseConfig: {
-        ...settings.firebaseConfig,
-        apiKey: firebaseConfig.apiKey || undefined,
-        authDomain: firebaseConfig.authDomain || undefined,
-        projectId: firebaseConfig.projectId || undefined,
-      },
     };
     onSaveSettings(updatedSettings);
     setSavedSuccess(true);
@@ -445,55 +432,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* SubTab 5: Sync, Backup & Reset */}
           {activeSubTab === 'sync' && (
             <div className="space-y-4">
-              {/* Google Sheets Webhook */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-800">
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                  Integrasi Google Sheets (Google Apps Script URL)
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Masukkan Webhook URL Google Apps Script untuk penyegerakan setiap transaksi ke Google Sheets
+              {/* Built-in Cloud Sync Note */}
+              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                <h4 className="font-bold text-emerald-800 text-sm mb-1 flex items-center gap-2">
+                  <Database className="w-4 h-4" />
+                  Awan Berpusat (Firebase Enterprise) Aktif
+                </h4>
+                <p className="text-xs text-emerald-700 leading-relaxed">
+                  Sistem ini telah dilengkapi dengan storan pangkalan data awan gred perusahaan terbina dalam yang menyegerakkan semua transaksi, baki, dan resit masa nyata ke peranti yang selamat. Anda tidak perlu memautkan pangkalan data pihak ketiga.
                 </p>
-                <input
-                  type="url"
-                  placeholder="https://script.google.com/macros/s/.../exec"
-                  value={googleAppsScriptUrl}
-                  onChange={(e) => setGoogleAppsScriptUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-[11px]"
-                />
-              </div>
-
-              {/* Firebase Database Config */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
-                <div className="flex items-center gap-2 font-bold text-slate-800">
-                  <Database className="w-4 h-4 text-emerald-600" />
-                  Integrasi Pangkalan Data Cloud (Firebase)
-                </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Konfigurasi pangkalan data Firebase untuk simpanan awan (Cloud Storage) sekiranya anda mempunyai akaun Firebase sendiri.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Project ID</label>
-                    <input
-                      type="text"
-                      placeholder="contoh-surau-123"
-                      value={firebaseConfig.projectId}
-                      onChange={(e) => setFirebaseConfig({ ...firebaseConfig, projectId: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-[11px]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">API Key</label>
-                    <input
-                      type="password"
-                      placeholder="AIzaSyA..."
-                      value={firebaseConfig.apiKey}
-                      onChange={(e) => setFirebaseConfig({ ...firebaseConfig, apiKey: e.target.value })}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-[11px]"
-                    />
-                  </div>
-                </div>
               </div>
 
               {/* JSON Backup & Restore */}

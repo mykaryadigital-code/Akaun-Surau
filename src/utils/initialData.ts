@@ -25,6 +25,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
     cash: 1300.0,
   },
   theme: 'emerald',
+  subscription: {
+    status: 'active',
+    validUntil: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days trial
+  },
   categoriesIn: [
     'Duit Tabung Surau/Masjid',
     'Sumbangan Jumaat',

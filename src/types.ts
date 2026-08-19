@@ -61,4 +61,8 @@ export interface AppSettings {
     appId?: string;
   };
   googleAppsScriptUrl?: string;
+  subscription?: {
+    status: 'active' | 'expired';
+    validUntil: string;
+  };
 }
