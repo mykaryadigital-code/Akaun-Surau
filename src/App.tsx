@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppTheme, Transaction } from './types';
 import { sendToGoogleSheetsWebhook } from './services/storage';
 import { useAuth, useFirestoreData } from './services/dbHooks';
@@ -43,6 +43,7 @@ export default function App() {
   const [quickModalType, setQuickModalType] = useState<'IN' | 'OUT' | null>(null);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
 
+  const [paymentVerifying, setPaymentVerifying] = useState(false);
   // Super Admin Bypass (Founder Account)
   const isSuperAdmin = user?.email === 'mykaryadigital@gmail.com';
 
@@ -52,6 +53,58 @@ export default function App() {
     settings?.subscription?.status === 'expired' || 
     (settings?.subscription?.validUntil && new Date(settings.subscription.validUntil).getTime() < Date.now())
   ));
+
+  // Verify Toyyibpay redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const billcode = urlParams.get('billcode');
+    const status_id = urlParams.get('status_id');
+
+    if (billcode && settings && user && !paymentVerifying) {
+      const verifyPayment = async () => {
+        setPaymentVerifying(true);
+        try {
+          if (status_id === '3') {
+             alert('Pembayaran dibatalkan atau gagal.');
+             window.history.replaceState({}, document.title, window.location.pathname);
+             setPaymentVerifying(false);
+             return;
+          }
+
+          const response = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ billCode: billcode })
+          });
+          const data = await response.json();
+          
+          if (data.success && data.isPaid) {
+            const currentExpiry = new Date(settings.subscription?.validUntil || Date.now()).getTime();
+            const baseTime = Math.max(currentExpiry, Date.now());
+            const newValidUntil = new Date(baseTime + (365 * 24 * 60 * 60 * 1000)).toISOString();
+            
+            await updateSettings({
+              ...settings,
+              subscription: {
+                status: 'active',
+                validUntil: newValidUntil
+              }
+            });
+            alert('Pembayaran berjaya! Langganan anda telah diperbaharui selama setahun (365 hari).');
+          } else {
+            alert('Pembayaran belum diterima. Jika duit telah ditolak, sila hubungi Admin Surau.');
+          }
+        } catch (error) {
+          console.error("Verification error:", error);
+          alert('Ralat semasa mengesahkan pembayaran. Sila hubungi sokongan.');
+        } finally {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setPaymentVerifying(false);
+        }
+      };
+      verifyPayment();
+    }
+  }, [settings, user]);
 
   // Handler to add a new transaction
   const handleAddTransaction = async (newTx: Transaction) => {
@@ -198,7 +251,7 @@ export default function App() {
       />
 
       {/* Paywall Overlay */}
-      {isExpired && <Paywall settings={settings} onCloseSimulated={forceShowPaywall ? () => setForceShowPaywall(false) : undefined} />}
+      {isExpired && <Paywall settings={settings} paymentVerifying={paymentVerifying} onCloseSimulated={forceShowPaywall ? () => setForceShowPaywall(false) : undefined} />}
     </div>
   );
 }

@@ -18,13 +18,13 @@ async function startServer() {
   // --- TOYYIBPAY API SECURE PROXY ---
   app.post('/api/create-bill', async (req, res) => {
     try {
-      const { amount, name, email, phone } = req.body;
+      const { amount, name, email, phone, returnUrl } = req.body;
       
       const TOYYIBPAY_SECRET = process.env.TOYYIBPAY_SECRET_KEY || 'pj15zsxo-4y87-pwky-i11o-jc9p47lx75j8';
       const TOYYIBPAY_CATEGORY = process.env.TOYYIBPAY_CATEGORY_CODE || 'e01m1sk5';
 
-      // We use the dev URL. For production, change to: https://toyyibpay.com/index.php/api/createBill
-      const toyyibpayUrl = 'https://dev.toyyibpay.com/index.php/api/createBill';
+      // Live production URL
+      const toyyibpayUrl = 'https://toyyibpay.com/index.php/api/createBill';
 
       const formData = new URLSearchParams();
       formData.append('userSecretKey', TOYYIBPAY_SECRET);
@@ -34,8 +34,8 @@ async function startServer() {
       formData.append('billPriceSetting', '1'); // Fixed amount
       formData.append('billPayorInfo', '1');    // Required payer info
       formData.append('billAmount', amount.toString()); 
-      formData.append('billReturnUrl', 'https://localhost:3000'); // Normally would be your live domain
-      formData.append('billCallbackUrl', 'https://localhost:3000/api/webhook/toyyibpay');
+      formData.append('billReturnUrl', returnUrl || 'http://localhost:3000'); // Dynamic return URL
+      formData.append('billCallbackUrl', returnUrl ? `${returnUrl}/api/webhook/toyyibpay` : 'http://localhost:3000/api/webhook/toyyibpay');
       formData.append('billExternalReferenceNo', 'SUB-' + Date.now());
       formData.append('billTo', name || 'Admin Surau');
       formData.append('billEmail', email || 'admin@surau.com');
@@ -53,12 +53,46 @@ async function startServer() {
 
       if (Array.isArray(data) && data[0]?.BillCode) {
         const billCode = data[0].BillCode;
-        // For production, use: https://dev.toyyibpay.com/${billCode}
-        res.json({ success: true, paymentUrl: `https://dev.toyyibpay.com/${billCode}` });
+        // Live production URL
+        res.json({ success: true, paymentUrl: `https://toyyibpay.com/${billCode}` });
       } else {
         res.status(400).json({ success: false, error: 'Gagal dari ToyyibPay', details: data });
       }
 
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+  });
+
+  app.post('/api/verify-payment', async (req, res) => {
+    try {
+      const { billCode } = req.body;
+      const TOYYIBPAY_SECRET = process.env.TOYYIBPAY_SECRET_KEY || 'pj15zsxo-4y87-pwky-i11o-jc9p47lx75j8';
+      
+      const formData = new URLSearchParams();
+      formData.append('billCode', billCode);
+      
+      // Live production URL
+      const toyyibpayUrl = 'https://toyyibpay.com/index.php/api/getBillTransactions';
+      
+      const response = await fetch(toyyibpayUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+      });
+
+      const data = await response.json();
+      
+      // Check if there is any successful transaction (billpaymentStatus == 1)
+      if (Array.isArray(data)) {
+        const isPaid = data.some((txn: any) => txn.billpaymentStatus === '1');
+        res.json({ success: true, isPaid });
+      } else {
+        res.json({ success: false, error: 'Tiada rekod', data });
+      }
     } catch (err) {
       console.error(err);
       res.status(500).json({ success: false, error: 'Internal Server Error' });

@@ -4,9 +4,10 @@ import { AppSettings } from '../types';
 
 interface PaywallProps {
   settings: AppSettings;
+  paymentVerifying?: boolean;
 }
 
-export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, onCloseSimulated }) => {
+export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, paymentVerifying, onCloseSimulated }) => {
   const handlePayment = async () => {
     try {
       // Create bill via our secure backend
@@ -17,7 +18,8 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
           amount: 12000, // RM120.00
           name: settings.org.name,
           email: 'admin@surau.com',
-          phone: '0123456789'
+          phone: '0123456789',
+          returnUrl: window.location.origin
         }),
       });
 
@@ -102,14 +104,15 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
           <div className="pt-4 border-t border-slate-100 space-y-3">
             <button
               onClick={handlePayment}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-slate-200"
+              disabled={paymentVerifying}
+              className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-slate-200"
             >
               <CreditCard className="w-5 h-5" />
-              Bayar Sekarang (ToyyibPay)
+              {paymentVerifying ? 'Mengesahkan...' : 'Bayar Sekarang (ToyyibPay)'}
             </button>
             <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
               <ShieldAlert className="w-3.5 h-3.5" />
-              Pembayaran selamat melalui gateway FPX ToyyibPay
+              Pembayaran automatik, selamat melalui gateway FPX
             </div>
           </div>
         </div>
