@@ -31,6 +31,7 @@ interface SettingsModalProps {
   onClearData: () => void;
   onImportBackup: (importedData: any) => void;
   allTransactions: any[];
+  isSuperAdmin?: boolean;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -41,6 +42,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClearData,
   onImportBackup,
   allTransactions,
+  isSuperAdmin = false,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'org' | 'ajk' | 'balances' | 'theme' | 'sync'>('org');
 
@@ -475,83 +477,87 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               {/* Reset Data */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="font-bold text-orange-600 block">Kosongkan Data (Clear Data)</span>
-                  <span className="text-[10px] text-slate-500">
-                    Memadam semua transaksi dan menetapkan baki awal ke 0.
-                  </span>
-                </div>
-                {!clearConfirm ? (
-                  <button
-                    type="button"
-                    onClick={() => setClearConfirm(true)}
-                    className="px-3.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold rounded-xl flex items-center gap-1 transition"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    Kosongkan
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setClearConfirm(false)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClearData();
-                        onClose();
-                      }}
-                      className="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
-                    >
-                      Pasti Padam
-                    </button>
+              {isSuperAdmin && (
+                <>
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-orange-600 block">Kosongkan Data (Clear Data)</span>
+                      <span className="text-[10px] text-slate-500">
+                        Memadam semua transaksi dan menetapkan baki awal ke 0.
+                      </span>
+                    </div>
+                    {!clearConfirm ? (
+                      <button
+                        type="button"
+                        onClick={() => setClearConfirm(true)}
+                        className="px-3.5 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 font-bold rounded-xl flex items-center gap-1 transition"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Kosongkan
+                      </button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setClearConfirm(false)}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClearData();
+                            onClose();
+                          }}
+                          className="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
+                        >
+                          Pasti Padam
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="font-bold text-rose-700 block">Reset / Muat Semula Data Contoh</span>
-                  <span className="text-[10px] text-slate-500">
-                    Mengembalikan data ke keadaan asal sampel master prompt
-                  </span>
-                </div>
-                {!resetConfirm ? (
-                  <button
-                    type="button"
-                    onClick={() => setResetConfirm(true)}
-                    className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl flex items-center gap-1 transition"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    Reset Semula
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setResetConfirm(false)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onResetData();
-                        onClose();
-                      }}
-                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
-                    >
-                      Pasti Reset
-                    </button>
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-rose-700 block">Reset / Muat Semula Data Contoh</span>
+                      <span className="text-[10px] text-slate-500">
+                        Mengembalikan data ke keadaan asal sampel master prompt
+                      </span>
+                    </div>
+                    {!resetConfirm ? (
+                      <button
+                        type="button"
+                        onClick={() => setResetConfirm(true)}
+                        className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl flex items-center gap-1 transition"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Reset Semula
+                      </button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setResetConfirm(false)}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onResetData();
+                            onClose();
+                          }}
+                          className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition shadow-sm"
+                        >
+                          Pasti Reset
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
           )}
 

@@ -180,6 +180,7 @@ export default function App() {
           onClearData={clearAllData}
           onImportBackup={importBackupData}
           allTransactions={transactions}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
 
