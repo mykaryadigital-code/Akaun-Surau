@@ -29,11 +29,11 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
         // Redirect to ToyyibPay
         window.location.href = data.paymentUrl;
       } else {
-        alert('Gagal menjana bil pembayaran. Sila hubungi sokongan.');
+        alert(`Gagal menjana bil: ${JSON.stringify(data.details || data.error || data)}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Ralat sistem. Sila cuba sebentar lagi.');
+      alert(`Ralat sistem: ${err.message || 'Sila cuba sebentar lagi.'}`);
     }
   };
 

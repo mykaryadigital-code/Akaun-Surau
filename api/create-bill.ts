@@ -4,7 +4,8 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const { amount, name, email, phone, returnUrl } = req.body;
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { amount, name, email, phone, returnUrl } = body;
     
     // Gunakan Environment Variable dari Vercel
     const TOYYIBPAY_SECRET = process.env.TOYYIBPAY_SECRET_KEY || 'pj15zsxo-4y87-pwky-i11o-jc9p47lx75j8';
@@ -19,7 +20,7 @@ export default async function handler(req: any, res: any) {
     formData.append('billDescription', 'Langganan Tahunan SaaS (12 Bulan)');
     formData.append('billPriceSetting', '1'); // Fixed amount
     formData.append('billPayorInfo', '1');    // Required payer info
-    formData.append('billAmount', amount.toString()); 
+    formData.append('billAmount', (amount || 12000).toString()); 
     formData.append('billReturnUrl', returnUrl || 'https://akaun-surau.vercel.app');
     formData.append('billCallbackUrl', returnUrl ? `${returnUrl}/api/webhook/toyyibpay` : 'https://akaun-surau.vercel.app/api/webhook/toyyibpay');
     formData.append('billExternalReferenceNo', 'SUB-' + Date.now());
@@ -35,7 +36,14 @@ export default async function handler(req: any, res: any) {
       body: formData.toString()
     });
 
-    const data = await response.json();
+    const textData = await response.text();
+    let data;
+    try {
+      // Sometimes Toyyibpay returns whitespace or PHP warnings before JSON
+      data = JSON.parse(textData.trim());
+    } catch (e) {
+      return res.status(400).json({ success: false, error: 'Gagal parse JSON dari ToyyibPay', raw: textData });
+    }
 
     if (Array.isArray(data) && data[0]?.BillCode) {
       const billCode = data[0].BillCode;
@@ -44,8 +52,8 @@ export default async function handler(req: any, res: any) {
       res.status(400).json({ success: false, error: 'Gagal dari ToyyibPay', details: data });
     }
 
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
+    res.status(500).json({ success: false, error: 'Internal Server Error', message: err.message });
   }
 }
