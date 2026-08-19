@@ -48,11 +48,20 @@ export default function App() {
   const isSuperAdmin = user?.email === 'mykaryadigital@gmail.com';
 
   const [forceShowPaywall, setForceShowPaywall] = useState(false);
+  const [manualPaywall, setManualPaywall] = useState(false);
+
+  useEffect(() => {
+    const handleOpenPaywall = () => setManualPaywall(true);
+    window.addEventListener('open-paywall', handleOpenPaywall);
+    return () => window.removeEventListener('open-paywall', handleOpenPaywall);
+  }, []);
 
   const isExpired = forceShowPaywall || (!isSuperAdmin && (
     settings?.subscription?.status === 'expired' || 
     (settings?.subscription?.validUntil && new Date(settings.subscription.validUntil).getTime() < Date.now())
   ));
+
+  const showPaywall = isExpired || manualPaywall;
 
   // Verify Toyyibpay redirect
   useEffect(() => {
@@ -251,7 +260,16 @@ export default function App() {
       />
 
       {/* Paywall Overlay */}
-      {isExpired && <Paywall settings={settings} paymentVerifying={paymentVerifying} onCloseSimulated={forceShowPaywall ? () => setForceShowPaywall(false) : undefined} />}
+      {showPaywall && (
+        <Paywall 
+          settings={settings} 
+          paymentVerifying={paymentVerifying} 
+          onCloseSimulated={forceShowPaywall || manualPaywall ? () => {
+            setForceShowPaywall(false);
+            setManualPaywall(false);
+          } : undefined} 
+        />
+      )}
     </div>
   );
 }

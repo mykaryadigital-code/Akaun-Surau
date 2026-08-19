@@ -48,7 +48,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
               onClick={onCloseSimulated}
               className="absolute top-4 right-4 z-20 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-xs font-bold transition"
             >
-              Tutup Simulasi
+              Tutup
             </button>
           )}
           <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
@@ -56,9 +56,14 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
             <div className="w-12 h-12 bg-rose-500/20 text-rose-400 rounded-full flex items-center justify-center mb-2 ring-4 ring-rose-500/10">
               <Lock className="w-6 h-6" />
             </div>
-            <h2 className="text-xl font-black text-white tracking-tight">Langganan Tamat Tempoh</h2>
+            <h2 className="text-xl font-black text-white tracking-tight">
+              {onCloseSimulated ? 'Sistem Langganan' : 'Langganan Tamat Tempoh'}
+            </h2>
             <p className="text-slate-300 text-xs mt-1 max-w-sm">
-              Sistem telah dikunci. Anda kini berada dalam <b>Mod Baca Sahaja</b>. Sila perbaharui langganan untuk terus merekod transaksi.
+              {onCloseSimulated 
+                ? 'Teruskan menyokong kami dengan melanggan pakej premium.' 
+                : <span>Sistem telah dikunci. Anda kini berada dalam <b>Mod Baca Sahaja</b>. Sila perbaharui langganan untuk terus merekod transaksi.</span>
+              }
             </p>
           </div>
         </div>

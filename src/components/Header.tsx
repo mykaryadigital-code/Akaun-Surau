@@ -216,6 +216,16 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
+            {/* Upgrade Button */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-paywall'))}
+              className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-2 rounded-lg border border-amber-200 transition flex items-center gap-1.5 text-xs sm:text-sm font-bold shadow-sm"
+              title="Langgan Penuh"
+            >
+              <CreditCard className="w-4 h-4 text-amber-600" />
+              <span className="hidden sm:inline">Langgan</span>
+            </button>
+
             {/* Settings Button */}
             <button
               onClick={onOpenSettings}
