@@ -81,11 +81,15 @@ export function useFirestoreData(user: User | null) {
     if (!user) return;
     try {
       const txRef = doc(db, 'surau_settings', user.uid, 'transactions', tx.id);
-      await setDoc(txRef, {
-        ...tx,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+      const dataToSave = { ...tx, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      // Remove undefined values
+      if (dataToSave.attachmentUrl === undefined) {
+        delete dataToSave.attachmentUrl;
+      }
+      if (dataToSave.notes === undefined) {
+        delete dataToSave.notes;
+      }
+      await setDoc(txRef, dataToSave);
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, `surau_settings/${user.uid}/transactions/${tx.id}`);
     }
@@ -95,10 +99,14 @@ export function useFirestoreData(user: User | null) {
     if (!user) return;
     try {
       const txRef = doc(db, 'surau_settings', user.uid, 'transactions', tx.id);
-      await setDoc(txRef, {
-        ...tx,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
+      const dataToSave = { ...tx, updatedAt: new Date().toISOString() };
+      if (dataToSave.attachmentUrl === undefined) {
+        delete dataToSave.attachmentUrl;
+      }
+      if (dataToSave.notes === undefined) {
+        delete dataToSave.notes;
+      }
+      await setDoc(txRef, dataToSave, { merge: true });
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, `surau_settings/${user.uid}/transactions/${tx.id}`);
     }
@@ -156,11 +164,14 @@ export function useFirestoreData(user: User | null) {
       if (Array.isArray(importedData.transactions)) {
         importedData.transactions.forEach((tx: any) => {
            const dRef = doc(db, 'surau_settings', user.uid, 'transactions', tx.id);
-           batch.set(dRef, {
+           const dataToSave = {
              ...tx,
              updatedAt: new Date().toISOString(),
              createdAt: tx.createdAt || new Date().toISOString()
-           }, { merge: true });
+           };
+           if (dataToSave.attachmentUrl === undefined) delete dataToSave.attachmentUrl;
+           if (dataToSave.notes === undefined) delete dataToSave.notes;
+           batch.set(dRef, dataToSave, { merge: true });
         });
       }
       
