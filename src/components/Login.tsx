@@ -87,13 +87,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
         <div className="text-center mb-8">
           <div className="w-24 h-24 mx-auto mb-4">
             <img 
-              src="https://res.cloudinary.com/g1dey3rs/image/upload/v1787072685/logo-masjid.png_a07p21.png" 
+              src="/ikon.png" 
               alt="Logo Masjid" 
-              className="w-full h-full object-contain rounded-2xl drop-shadow-sm"
+              className="w-full h-full object-contain drop-shadow-sm rounded-[24px]"
               onError={(e) => {
                 // Fallback to a styled div if image is not yet uploaded to public folder
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>';
+                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-slate-900 text-white rounded-[24px] flex items-center justify-center shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>';
               }}
             />
           </div>

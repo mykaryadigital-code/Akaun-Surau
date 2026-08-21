@@ -66,9 +66,9 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
           <div className="relative z-10 flex flex-col items-center pt-2">
             <div className="relative mb-4">
               <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-orange-500 blur-xl opacity-40 rounded-full"></div>
-              <div className="w-16 h-16 bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center relative shadow-lg p-[1px]">
-                 <div className="w-full h-full bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/50">
-                   <Lock className="w-7 h-7 text-white drop-shadow-md" />
+              <div className="w-16 h-16 bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 rounded-2xl flex items-center justify-center relative shadow-lg p-[2px]">
+                 <div className="w-full h-full bg-white backdrop-blur-sm rounded-2xl overflow-hidden shadow-inner">
+                   <img src="/ikon.png" alt="Sistem Langganan" className="w-full h-full object-cover" />
                  </div>
               </div>
             </div>
