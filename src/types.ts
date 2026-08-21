@@ -7,7 +7,7 @@ export type TransactionType = 'IN' | 'OUT';
 
 export type PaymentMethod = 'Pindahan Bank' | 'Tunai' | 'Cek' | 'QR Pay';
 
-export type AppTheme = 'emerald' | 'masjidi' | 'teal' | 'amber' | 'slate';
+export type AppTheme = 'emerald' | 'masjidi' | 'teal' | 'amber' | 'slate' | 'white';
 
 export interface OrganizationInfo {
   name: string;

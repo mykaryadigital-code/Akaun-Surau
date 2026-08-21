@@ -121,6 +121,25 @@ export const THEMES: Record<AppTheme, ThemeColors> = {
     gradientBg: 'from-slate-950 via-slate-900 to-zinc-900',
     bannerBg: 'bg-slate-900 text-white',
   },
+  white: {
+    id: 'white',
+    name: 'Putih Bersih',
+    badge: 'bg-slate-100 text-slate-800 border-slate-200',
+    headerBg: 'bg-white border-b border-slate-200',
+    headerAccent: 'text-slate-500',
+    primaryBtn: 'bg-slate-900 hover:bg-slate-800 text-white shadow-sm',
+    primaryBtnHover: 'hover:bg-slate-800',
+    secondaryBtn: 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200',
+    borderActive: 'border-slate-900',
+    activeTab: 'bg-slate-900 text-white shadow-sm',
+    cardHeader: 'bg-slate-50 text-slate-900 border-b border-slate-100',
+    iconBg: 'bg-slate-100 text-slate-700',
+    iconText: 'text-slate-700',
+    highlightText: 'text-slate-800',
+    ring: 'focus:ring-slate-900',
+    gradientBg: 'from-slate-100 via-white to-slate-50',
+    bannerBg: 'bg-slate-100 text-slate-900',
+  },
 };
 
 export function getTheme(themeKey: AppTheme): ThemeColors {

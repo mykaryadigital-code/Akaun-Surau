@@ -68,6 +68,7 @@ export default function App() {
     const urlParams = new URLSearchParams(window.location.search);
     const billcode = urlParams.get('billcode');
     const status_id = urlParams.get('status_id');
+    const pkg = urlParams.get('pkg') || 'yearly';
 
     if (billcode && settings && user && !paymentVerifying) {
       const verifyPayment = async () => {
@@ -90,7 +91,19 @@ export default function App() {
           if (data.success && data.isPaid) {
             const currentExpiry = new Date(settings.subscription?.validUntil || Date.now()).getTime();
             const baseTime = Math.max(currentExpiry, Date.now());
-            const newValidUntil = new Date(baseTime + (365 * 24 * 60 * 60 * 1000)).toISOString();
+            
+            let daysToAdd = 365;
+            let successMsg = 'Pembayaran berjaya! Langganan anda telah diperbaharui selama setahun (365 hari).';
+            
+            if (pkg === 'monthly') {
+              daysToAdd = 30;
+              successMsg = 'Pembayaran berjaya! Langganan bulanan (30 hari) anda telah diaktifkan.';
+            } else if (pkg === 'pro') {
+              daysToAdd = 36500; // 100 years (Lifetime / White Label)
+              successMsg = 'Pembayaran berjaya! Pakej PRO (White Label) anda telah diaktifkan untuk akses seumur hidup.';
+            }
+
+            const newValidUntil = new Date(baseTime + (daysToAdd * 24 * 60 * 60 * 1000)).toISOString();
             
             await updateSettings({
               ...settings,
@@ -99,7 +112,7 @@ export default function App() {
                 validUntil: newValidUntil
               }
             });
-            alert('Pembayaran berjaya! Langganan anda telah diperbaharui selama setahun (365 hari).');
+            alert(successMsg);
           } else {
             alert('Pembayaran belum diterima. Jika duit telah ditolak, sila hubungi Admin Surau.');
           }

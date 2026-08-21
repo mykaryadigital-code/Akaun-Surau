@@ -5,7 +5,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { amount, name, email, phone, returnUrl } = body;
+    const { amount, name, email, phone, returnUrl, packageId, billDescription } = body;
     
     // Gunakan Environment Variable dari Vercel
     const TOYYIBPAY_SECRET = process.env.TOYYIBPAY_SECRET_KEY || 'pj15zsxo-4y87-pwky-i11o-jc9p47lx75j8';
@@ -13,15 +13,20 @@ export default async function handler(req: any, res: any) {
 
     const toyyibpayUrl = 'https://toyyibpay.com/index.php/api/createBill';
 
+    const finalReturnUrl = returnUrl || 'https://akaun-surau.vercel.app';
+    const returnUrlWithPkg = finalReturnUrl.includes('?') 
+      ? `${finalReturnUrl}&pkg=${packageId || 'yearly'}`
+      : `${finalReturnUrl}?pkg=${packageId || 'yearly'}`;
+
     const formData = new URLSearchParams();
     formData.append('userSecretKey', TOYYIBPAY_SECRET);
     formData.append('categoryCode', TOYYIBPAY_CATEGORY);
     formData.append('billName', 'Langganan Akaun Surau'); // Max 30 chars limit
-    formData.append('billDescription', 'Langganan Tahunan SaaS (12 Bulan)');
+    formData.append('billDescription', billDescription || 'Langganan Tahunan SaaS (12 Bulan)');
     formData.append('billPriceSetting', '1'); // Fixed amount
     formData.append('billPayorInfo', '0');    // 0 = Allow user to edit info, 1 = Fixed info
     formData.append('billAmount', (amount || 12000).toString()); 
-    formData.append('billReturnUrl', returnUrl || 'https://akaun-surau.vercel.app');
+    formData.append('billReturnUrl', returnUrlWithPkg);
     formData.append('billCallbackUrl', returnUrl ? `${returnUrl}/api/webhook/toyyibpay` : 'https://akaun-surau.vercel.app/api/webhook/toyyibpay');
     formData.append('billExternalReferenceNo', 'SUB-' + Date.now());
     formData.append('billTo', name || 'Admin Surau');

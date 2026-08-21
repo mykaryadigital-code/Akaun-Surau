@@ -82,28 +82,30 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'report', label: 'Penyata Kewangan', icon: FileSpreadsheet },
   ];
 
+  const isWhite = theme.id === 'white';
+
   return (
     <header className="sticky top-0 z-30 shadow-md transition-colors duration-200">
       {/* Top Bar with Org Info & Balances */}
-      <div className={`${theme.headerBg} text-white px-4 py-3 sm:px-6`}>
+      <div className={`${theme.headerBg} ${isWhite ? 'text-slate-900' : 'text-white'} px-4 py-3 sm:px-6`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Org Title & Badge */}
           <div className="flex items-center gap-3">
             {settings.org.logoUrl && (
-              <img src={settings.org.logoUrl} alt="Logo" className="h-16 sm:h-20 w-auto object-contain bg-white rounded-lg p-1 shrink-0 shadow-sm" />
+              <img src={settings.org.logoUrl} alt="Logo" className="h-16 sm:h-20 w-auto object-contain bg-white rounded-lg p-1 shrink-0 shadow-sm border border-slate-200" />
             )}
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-0.5">
+              <h1 className={`text-xl sm:text-2xl font-bold tracking-tight ${isWhite ? 'text-slate-900' : 'text-white'} mb-0.5`}>
                 {settings.org.name}
               </h1>
               <div className={`text-xs ${theme.headerAccent} flex flex-col gap-1`}>
-                <span className="font-medium text-white/90 sm:text-sm">{settings.org.kariah}</span>
+                <span className={`font-medium ${isWhite ? 'text-slate-600' : 'text-white/90'} sm:text-sm`}>{settings.org.kariah}</span>
                 <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/20 border border-white/20 text-[10px] font-bold text-white tracking-wide">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-md ${isWhite ? 'bg-slate-100 border border-slate-300 text-slate-700' : 'bg-white/20 border border-white/20 text-white'} text-[10px] font-bold tracking-wide`}>
                     {settings.org.regNo}
                   </span>
                   <span className="opacity-50 hidden sm:inline">•</span>
-                  <span>{settings.org.bankName} ({settings.org.bankAccount})</span>
+                  <span className={isWhite ? 'text-slate-600' : ''}>{settings.org.bankName} ({settings.org.bankAccount})</span>
                 </div>
               </div>
             </div>
@@ -112,39 +114,39 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Balance Cards Bar */}
           <div className="flex flex-wrap items-center justify-between md:justify-end gap-2 text-xs sm:text-sm">
             {/* Total Balance */}
-            <div className="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 flex items-center gap-2">
-              <Wallet className="w-4 h-4 text-emerald-300" />
+            <div className={`${isWhite ? 'bg-slate-50 border-slate-200' : 'bg-white/10 border-white/15'} backdrop-blur-md px-3 py-1.5 rounded-lg border flex items-center gap-2`}>
+              <Wallet className={`w-4 h-4 ${isWhite ? 'text-slate-700' : 'text-emerald-300'}`} />
               <div>
-                <span className="block text-[10px] text-white/70 uppercase tracking-wider font-medium">
+                <span className={`block text-[10px] ${isWhite ? 'text-slate-500' : 'text-white/70'} uppercase tracking-wider font-medium`}>
                   Baki Keseluruhan
                 </span>
-                <span className="font-bold text-amber-300 text-sm sm:text-base">
+                <span className={`font-bold text-sm sm:text-base ${isWhite ? 'text-emerald-700' : 'text-amber-300'}`}>
                   RM {currentTotal.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
 
             {/* Bank Balance */}
-            <div className="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 hidden sm:flex items-center gap-2">
-              <Landmark className="w-4 h-4 text-sky-300" />
+            <div className={`${isWhite ? 'bg-slate-50 border-slate-200' : 'bg-white/10 border-white/15'} backdrop-blur-md px-3 py-1.5 rounded-lg border hidden sm:flex items-center gap-2`}>
+              <Landmark className={`w-4 h-4 ${isWhite ? 'text-slate-700' : 'text-sky-300'}`} />
               <div>
-                <span className="block text-[10px] text-white/70 uppercase tracking-wider font-medium">
+                <span className={`block text-[10px] ${isWhite ? 'text-slate-500' : 'text-white/70'} uppercase tracking-wider font-medium`}>
                   Baki Bank
                 </span>
-                <span className="font-semibold text-white">
+                <span className={`font-semibold ${isWhite ? 'text-slate-800' : 'text-white'}`}>
                   RM {currentBank.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
 
             {/* Cash Balance */}
-            <div className="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/15 hidden md:flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-amber-300" />
+            <div className={`${isWhite ? 'bg-slate-50 border-slate-200' : 'bg-white/10 border-white/15'} backdrop-blur-md px-3 py-1.5 rounded-lg border hidden md:flex items-center gap-2`}>
+              <CreditCard className={`w-4 h-4 ${isWhite ? 'text-slate-700' : 'text-amber-300'}`} />
               <div>
-                <span className="block text-[10px] text-white/70 uppercase tracking-wider font-medium">
+                <span className={`block text-[10px] ${isWhite ? 'text-slate-500' : 'text-white/70'} uppercase tracking-wider font-medium`}>
                   Peti Tunai
                 </span>
-                <span className="font-semibold text-white">
+                <span className={`font-semibold ${isWhite ? 'text-slate-800' : 'text-white'}`}>
                   RM {currentCash.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
                 </span>
               </div>
