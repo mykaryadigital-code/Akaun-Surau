@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CreditCard, Lock, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
 import { AppSettings } from '../types';
 
@@ -8,9 +8,11 @@ interface PaywallProps {
 }
 
 export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, paymentVerifying, onCloseSimulated }) => {
+  const [isCreatingBill, setIsCreatingBill] = useState(false);
+
   const handlePayment = async (packageId: string, amount: number, billDescription: string) => {
     try {
-      setPaymentVerifying(true);
+      setIsCreatingBill(true);
       // Create bill via our secure backend
       const response = await fetch('/api/create-bill', {
         method: 'POST',
@@ -33,12 +35,12 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
         window.location.href = data.paymentUrl;
       } else {
         alert(`Gagal menjana bil: ${JSON.stringify(data.details || data.error || data)}`);
-        setPaymentVerifying(false);
+        setIsCreatingBill(false);
       }
     } catch (err: any) {
       console.error(err);
       alert(`Ralat sistem: ${err.message || 'Sila cuba sebentar lagi.'}`);
-      setPaymentVerifying(false);
+      setIsCreatingBill(false);
     }
   };
 
@@ -99,7 +101,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
               </div>
               <button
                 onClick={() => handlePayment('monthly', 3000, 'Pakej Bulanan (1 Bulan)')}
-                disabled={paymentVerifying}
+                disabled={paymentVerifying || isCreatingBill}
                 className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 disabled:opacity-50 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm"
               >
                 <CreditCard className="w-4 h-4" /> Langgan Bulanan
@@ -131,7 +133,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
               </div>
               <button
                 onClick={() => handlePayment('yearly', 12000, 'Pakej Tahunan (12 Bulan)')}
-                disabled={paymentVerifying}
+                disabled={paymentVerifying || isCreatingBill}
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 text-sm"
               >
                 <CreditCard className="w-4 h-4" /> Langgan Tahunan
@@ -161,7 +163,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
               </div>
               <button
                 onClick={() => handlePayment('pro', 79900, 'Pakej PRO + White Label')}
-                disabled={paymentVerifying}
+                disabled={paymentVerifying || isCreatingBill}
                 className="w-full bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 text-sm"
               >
                 <CreditCard className="w-4 h-4" /> Dapatkan Pakej PRO
