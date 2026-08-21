@@ -73,20 +73,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Main Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {/* Total Overall Balance */}
-        <div className="bg-gradient-to-br from-emerald-800 to-teal-900 text-white p-5 rounded-2xl shadow-sm border border-emerald-700/50 relative overflow-hidden">
+        <div className={`bg-gradient-to-br ${theme.gradientBg} text-white p-5 rounded-2xl shadow-sm border border-black/10 relative overflow-hidden`}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-200">
+            <span className={`text-xs font-semibold uppercase tracking-wider ${theme.id === 'white' ? 'text-slate-500' : 'text-white/80'}`}>
               Baki Keseluruhan
             </span>
-            <div className="p-2 bg-white/10 rounded-xl">
-              <Wallet className="w-5 h-5 text-emerald-200" />
+            <div className="p-2 bg-black/10 rounded-xl">
+              <Wallet className={`w-5 h-5 ${theme.id === 'white' ? 'text-slate-700' : 'text-white/90'}`} />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-extrabold tracking-tight text-white block">
+            <span className={`text-2xl font-extrabold tracking-tight block ${theme.id === 'white' ? 'text-slate-900' : 'text-white'}`}>
               RM {currentTotal.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-[11px] text-emerald-200 mt-1 block">
+            <span className={`text-[11px] mt-1 block ${theme.id === 'white' ? 'text-slate-500' : 'text-white/70'}`}>
               Termasuk Baki Awal + Transaksi
             </span>
           </div>

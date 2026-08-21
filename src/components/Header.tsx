@@ -185,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative">
               <button
                 onClick={() => setTransactionMenuOpen(!transactionMenuOpen)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-xs sm:text-sm shadow-sm flex items-center gap-1.5 transition"
+                className={`${theme.primaryBtn} font-medium px-4 py-2 rounded-lg text-xs sm:text-sm flex items-center gap-1.5 transition`}
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Tambah Transaksi</span>
