@@ -197,6 +197,7 @@ export default function App() {
         onOpenSettings={() => setSettingsOpen(true)}
         onThemeChange={handleThemeChange}
         onLogout={handleLogout}
+        isSuperAdmin={isSuperAdmin}
       />
 
       {/* Main Container */}
