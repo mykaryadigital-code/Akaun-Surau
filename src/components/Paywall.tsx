@@ -45,35 +45,38 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-[#0B1120] to-[#120B29] rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-indigo-500/20 max-w-5xl w-full max-h-[95vh] flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-5xl w-full max-h-[95vh] flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header Illustration */}
         <div className="px-5 py-8 text-center relative overflow-hidden shrink-0">
           {onCloseSimulated && (
             <button 
               onClick={onCloseSimulated}
-              className="absolute top-4 right-4 z-20 text-white hover:text-white bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-lg text-xs font-bold transition"
+              className="absolute top-4 right-4 z-20 text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-1.5 rounded-lg text-xs font-bold transition"
             >
               Tutup
             </button>
           )}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent pointer-events-none"></div>
+          
+          {/* Decorative Light Background Elements */}
+          <div className="absolute top-[-50%] left-[-10%] w-[50%] h-[150%] bg-indigo-50/80 blur-3xl rounded-full pointer-events-none"></div>
+          <div className="absolute top-[-50%] right-[-10%] w-[50%] h-[150%] bg-emerald-50/80 blur-3xl rounded-full pointer-events-none"></div>
           
           <div className="relative z-10 flex flex-col items-center pt-2">
             <div className="relative mb-4">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-orange-500 blur-xl opacity-50 rounded-full"></div>
-              <div className="w-16 h-16 bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center relative shadow-[0_0_20px_rgba(236,72,153,0.3)] p-[1px]">
-                 <div className="w-full h-full bg-gradient-to-b from-purple-500/50 to-orange-500/50 rounded-full flex items-center justify-center border-2 border-white/20">
-                   <Lock className="w-7 h-7 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-500 to-orange-500 blur-xl opacity-40 rounded-full"></div>
+              <div className="w-16 h-16 bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center relative shadow-lg p-[1px]">
+                 <div className="w-full h-full bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/50">
+                   <Lock className="w-7 h-7 text-white drop-shadow-md" />
                  </div>
               </div>
             </div>
             
-            <h2 className="text-3xl font-black text-white tracking-tight mb-2">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">
               {onCloseSimulated ? 'Sistem Langganan' : 'Langganan Tamat Tempoh'}
             </h2>
-            <p className="text-slate-300 text-sm max-w-lg mx-auto">
+            <p className="text-slate-600 text-sm max-w-lg mx-auto font-medium">
               {onCloseSimulated 
                 ? 'Naik Taraf Pengurusan Masjid & Surau Anda' 
                 : <span>Sistem telah dikunci. Anda kini berada dalam <b>Mod Baca Sahaja</b>. Sila perbaharui langganan untuk terus merekod transaksi.</span>
