@@ -6,16 +6,19 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import * as admin from 'firebase-admin';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 try {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-    const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8'));
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-    console.log("Firebase Admin initialized via Base64.");
-  } else {
-    admin.initializeApp();
-    console.log("Firebase Admin initialized via ADC.");
+  if (getApps().length === 0) {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+      const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8'));
+      initializeApp({ credential: cert(serviceAccount) });
+      console.log("Firebase Admin initialized via Base64.");
+    } else {
+      initializeApp();
+      console.log("Firebase Admin initialized via ADC.");
+    }
   }
 } catch (err: any) {
   console.warn("Firebase Admin failed to initialize. Webhook DB updates may fail. Set FIREBASE_SERVICE_ACCOUNT_BASE64 in .env");
@@ -93,7 +96,7 @@ async function startServer() {
 
           console.log(`[WEBHOOK] Payment successful for user ${userId}, package ${packageId}`);
           try {
-            const db = admin.firestore();
+            const db = getFirestore();
             const docRef = db.collection('surau_settings').doc(userId);
             const docSnap = await docRef.get();
             let currentValidUntil = Date.now();

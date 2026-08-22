@@ -10,11 +10,13 @@ import { useAuth, useFirestoreData } from './services/dbHooks';
 import { auth } from './services/firebase';
 import { signOut } from 'firebase/auth';
 
-import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
+import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { Ledger } from './components/Ledger';
-import { TransactionModal } from './components/TransactionModal';
+import { ReceiptView } from './components/ReceiptView';
 import { FinancialStatement } from './components/FinancialStatement';
+import { TransactionModal } from './components/TransactionModal';
 import { SettingsModal } from './components/SettingsModal';
 import { Login } from './components/Login';
 import { Paywall } from './components/Paywall';
@@ -22,21 +24,22 @@ import { DEFAULT_SETTINGS } from './utils/initialData';
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
-  
-  const { 
-    settings, 
-    transactions, 
-    dataLoading, 
-    updateSettings, 
-    addTransaction, 
-    updateTransaction, 
-    deleteTransaction, 
-    clearAllData, 
-    importBackupData 
+
+  const {
+    settings,
+    transactions,
+    dataLoading,
+    updateSettings,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    clearAllData,
+    importBackupData,
   } = useFirestoreData(user);
 
-  // Active Main Navigation Tab
+  // Active Main Navigation Tab ('dashboard' | 'penerimaan' | 'perbelanjaan' | 'resit' | 'ledger' | 'report')
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Modal States
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -56,10 +59,12 @@ export default function App() {
     return () => window.removeEventListener('open-paywall', handleOpenPaywall);
   }, []);
 
-  const isExpired = forceShowPaywall || (!isSuperAdmin && (
-    settings?.subscription?.status === 'expired' || 
-    (settings?.subscription?.validUntil && new Date(settings.subscription.validUntil).getTime() < Date.now())
-  ));
+  const isExpired =
+    forceShowPaywall ||
+    (!isSuperAdmin &&
+      (settings?.subscription?.status === 'expired' ||
+        (settings?.subscription?.validUntil &&
+          new Date(settings.subscription.validUntil).getTime() < Date.now())));
 
   const showPaywall = isExpired || manualPaywall;
 
@@ -75,26 +80,26 @@ export default function App() {
         setPaymentVerifying(true);
         try {
           if (status_id === '3') {
-             alert('Pembayaran dibatalkan atau gagal.');
-             window.history.replaceState({}, document.title, window.location.pathname);
-             setPaymentVerifying(false);
-             return;
+            alert('Pembayaran dibatalkan atau gagal.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setPaymentVerifying(false);
+            return;
           }
 
           const response = await fetch('/api/verify-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ billCode: billcode })
+            body: JSON.stringify({ billCode: billcode }),
           });
           const data = await response.json();
-          
+
           if (data.success && data.isPaid) {
             const currentExpiry = new Date(settings.subscription?.validUntil || Date.now()).getTime();
             const baseTime = Math.max(currentExpiry, Date.now());
-            
+
             let daysToAdd = 365;
             let successMsg = 'Pembayaran berjaya! Langganan anda telah diperbaharui selama setahun (365 hari).';
-            
+
             if (pkg === 'monthly') {
               daysToAdd = 30;
               successMsg = 'Pembayaran berjaya! Langganan bulanan (30 hari) anda telah diaktifkan.';
@@ -103,21 +108,21 @@ export default function App() {
               successMsg = 'Pembayaran berjaya! Pakej PRO (White Label) anda telah diaktifkan untuk akses seumur hidup.';
             }
 
-            const newValidUntil = new Date(baseTime + (daysToAdd * 24 * 60 * 60 * 1000)).toISOString();
-            
+            const newValidUntil = new Date(baseTime + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+
             await updateSettings({
               ...settings,
               subscription: {
                 status: 'active',
-                validUntil: newValidUntil
-              }
+                validUntil: newValidUntil,
+              },
             });
             alert(successMsg);
           } else {
             alert('Pembayaran belum diterima. Jika duit telah ditolak, sila hubungi Admin Surau.');
           }
         } catch (error) {
-          console.error("Verification error:", error);
+          console.error('Verification error:', error);
           alert('Ralat semasa mengesahkan pembayaran. Sila hubungi sokongan.');
         } finally {
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -148,9 +153,9 @@ export default function App() {
     }
   };
 
-  // Handler to Reset Data to Default Master Prompt Preset
+  // Handler to Reset Data
   const handleResetData = async () => {
-    if (window.confirm("Adakah anda pasti? Tindakan ini akan memulihkan tetapan kepada lalai.")) {
+    if (window.confirm('Adakah anda pasti? Tindakan ini akan memulihkan tetapan kepada lalai.')) {
       await updateSettings(DEFAULT_SETTINGS);
     }
   };
@@ -166,8 +171,8 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-800 border-t-transparent" />
       </div>
     );
   }
@@ -178,73 +183,111 @@ export default function App() {
 
   if (dataLoading || !settings) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center flex-col gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
-        <p className="text-slate-500 font-medium animate-pulse">Menyegerak Data Awan (Luar Talian Disokong)...</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center flex-col gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-800 border-t-transparent" />
+        <p className="text-slate-500 font-medium animate-pulse text-sm">Menyegerak Data Awan...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col selection:bg-emerald-500 selection:text-white">
-      {/* Top Header */}
-      <Header
-        settings={settings}
-        transactions={transactions}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenNewTransaction={handleOpenNewTransaction}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onThemeChange={handleThemeChange}
-        onLogout={handleLogout}
-        isSuperAdmin={isSuperAdmin}
-      />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col selection:bg-emerald-800 selection:text-white">
+      <div className="flex flex-1 min-h-screen">
+        {/* Left Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenSettings={() => setSettingsOpen(true)}
+          settings={settings}
+          mobileOpen={mobileMenuOpen}
+          setMobileOpen={setMobileMenuOpen}
+        />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 pt-6">
-        {activeTab === 'dashboard' && (
-          <Dashboard
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Navbar */}
+          <Navbar
             settings={settings}
-            transactions={transactions}
-            onOpenNewTransaction={handleOpenNewTransaction}
-            onNavigateTab={setActiveTab}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onLogout={handleLogout}
+            onMobileMenuToggle={() => setMobileMenuOpen(true)}
+            isSuperAdmin={isSuperAdmin}
           />
-        )}
-        
-        {activeTab === 'ledger' && (
-          <Ledger
-            transactions={transactions}
-            onEditTransaction={(tx) => setEditingTx(tx)}
-            onDeleteTransaction={deleteTransaction}
-          />
-        )}
 
-        {activeTab === 'report' && (
-          <FinancialStatement settings={settings} transactions={transactions} />
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 px-4 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>
-            © {new Date().getFullYear()} {settings.org.name} ({settings.org.regNo}). Hak Cipta Terpelihara.
-          </span>
-          <div className="flex items-center gap-4">
-            {isSuperAdmin && (
-              <button 
-                onClick={() => setForceShowPaywall(!forceShowPaywall)}
-                className="text-[10px] bg-rose-100 text-rose-700 px-2 py-1 rounded hover:bg-rose-200 transition"
-              >
-                Simulasi Paywall (Admin)
-              </button>
+          {/* Dynamic Page Views */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+            {activeTab === 'dashboard' && (
+              <Dashboard
+                settings={settings}
+                transactions={transactions}
+                onOpenNewTransaction={handleOpenNewTransaction}
+                onNavigateTab={setActiveTab}
+              />
             )}
-            <span className="text-[11px] text-emerald-600 font-medium">
-              ☁️ Diselaraskan secara Masa Nyata (Cloud SaaS)
-            </span>
-          </div>
+
+            {activeTab === 'penerimaan' && (
+              <Ledger
+                transactions={transactions}
+                onEditTransaction={(tx) => setEditingTx(tx)}
+                onDeleteTransaction={deleteTransaction}
+                onOpenNewTransaction={handleOpenNewTransaction}
+                forcedType="IN"
+              />
+            )}
+
+            {activeTab === 'perbelanjaan' && (
+              <Ledger
+                transactions={transactions}
+                onEditTransaction={(tx) => setEditingTx(tx)}
+                onDeleteTransaction={deleteTransaction}
+                onOpenNewTransaction={handleOpenNewTransaction}
+                forcedType="OUT"
+              />
+            )}
+
+            {activeTab === 'ledger' && (
+              <Ledger
+                transactions={transactions}
+                onEditTransaction={(tx) => setEditingTx(tx)}
+                onDeleteTransaction={deleteTransaction}
+                onOpenNewTransaction={handleOpenNewTransaction}
+                forcedType="ALL"
+              />
+            )}
+
+            {activeTab === 'resit' && (
+              <ReceiptView settings={settings} transactions={transactions} />
+            )}
+
+            {activeTab === 'report' && (
+              <FinancialStatement settings={settings} transactions={transactions} />
+            )}
+          </main>
+
+          {/* Minimalist Clean Footer */}
+          <footer className="border-t border-slate-200 bg-white py-3.5 px-4 sm:px-6 text-xs text-slate-500">
+            <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+              <span>
+                © {new Date().getFullYear()} {settings.org.name || 'Surau Al-Jannah'}. Hak Cipta Terpelihara.
+              </span>
+              <div className="flex items-center gap-4">
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => setForceShowPaywall(!forceShowPaywall)}
+                    className="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded hover:bg-rose-200 transition font-bold"
+                  >
+                    Simulasi Paywall (Admin)
+                  </button>
+                )}
+                <span className="text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-700 inline-block animate-pulse" />
+                  Sistem Kewangan Berpusat (Cloud Sync Aktif)
+                </span>
+              </div>
+            </div>
+          </footer>
         </div>
-      </footer>
+      </div>
 
       {/* Settings Modal */}
       {settingsOpen && (
@@ -275,14 +318,18 @@ export default function App() {
 
       {/* Paywall Overlay */}
       {showPaywall && (
-        <Paywall 
-          settings={settings} 
+        <Paywall
+          settings={settings}
           uid={user?.uid}
-          paymentVerifying={paymentVerifying} 
-          onCloseSimulated={forceShowPaywall || manualPaywall ? () => {
-            setForceShowPaywall(false);
-            setManualPaywall(false);
-          } : undefined} 
+          paymentVerifying={paymentVerifying}
+          onCloseSimulated={
+            forceShowPaywall || manualPaywall
+              ? () => {
+                  setForceShowPaywall(false);
+                  setManualPaywall(false);
+                }
+              : undefined
+          }
         />
       )}
     </div>
