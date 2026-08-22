@@ -277,6 +277,7 @@ export default function App() {
       {showPaywall && (
         <Paywall 
           settings={settings} 
+          uid={user?.uid}
           paymentVerifying={paymentVerifying} 
           onCloseSimulated={forceShowPaywall || manualPaywall ? () => {
             setForceShowPaywall(false);

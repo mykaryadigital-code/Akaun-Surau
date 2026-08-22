@@ -4,10 +4,11 @@ import { AppSettings } from '../types';
 
 interface PaywallProps {
   settings: AppSettings;
+  uid?: string;
   paymentVerifying?: boolean;
 }
 
-export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, paymentVerifying, onCloseSimulated }) => {
+export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, uid, paymentVerifying, onCloseSimulated }) => {
   const [isCreatingBill, setIsCreatingBill] = useState(false);
 
   const handlePayment = async (packageId: string, amount: number, billDescription: string) => {
@@ -24,7 +25,8 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
           phone: '0123456789',
           returnUrl: window.location.origin,
           packageId,
-          billDescription
+          billDescription,
+          userId: uid // pass userId to backend for webhook mapping
         }),
       });
 
