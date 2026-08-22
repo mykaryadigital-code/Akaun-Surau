@@ -142,23 +142,23 @@ export const FinancialStatement: React.FC<FinancialStatementProps> = ({
       {/* Printable Report Canvas */}
       <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-sm border border-slate-200 text-slate-900 space-y-6">
         {/* Report Header */}
-        <div className="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex-1 text-center sm:text-left space-y-1">
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
+        <div className="border-b-2 border-slate-900 pb-5 flex flex-col items-center justify-center gap-3 text-center">
+          {settings.org.logoUrl && (
+            <div className="shrink-0">
+              <img src={settings.org.logoUrl} alt="Logo Surau" className="h-20 sm:h-24 w-auto object-contain" />
+            </div>
+          )}
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
               PENYATA KEWANGAN BULANAN - {settings.org.name.toUpperCase()}
             </h1>
-            <p className="text-xs font-bold text-slate-700">
+            <p className="text-sm font-bold text-slate-700">
               BAGI BULAN {monthNames[selectedMonth - 1].toUpperCase()} {selectedYear}
             </p>
             <p className="text-xs text-slate-500">
               No. Pendaftaran: {settings.org.regNo} • {settings.org.kariah} • {settings.org.bankName} ({settings.org.bankAccount})
             </p>
           </div>
-          {settings.org.logoUrl && (
-            <div className="shrink-0">
-              <img src={settings.org.logoUrl} alt="Logo Surau" className="h-20 w-auto object-contain" />
-            </div>
-          )}
         </div>
 
         {/* Executive Summary Box */}
