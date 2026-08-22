@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import { auth } from '../services/firebase';
 import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { Landmark } from 'lucide-react';
+
+const MosqueIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="1.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M12 2v20" />
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+  </svg>
+);
 
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24">
@@ -70,14 +85,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-200">
         <div className="text-center mb-8">
-          <div className="w-48 h-auto mx-auto mb-5">
+          <div className="w-24 h-24 mx-auto mb-4">
             <img 
-              src="/ikonew.png" 
-              alt="Logo Sistem" 
-              className="w-full h-auto object-contain drop-shadow-md rounded-2xl"
+              src="/ikon.png" 
+              alt="Logo Masjid" 
+              className="w-full h-full object-contain drop-shadow-sm rounded-[24px]"
               onError={(e) => {
+                // Fallback to a styled div if image is not yet uploaded to public folder
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<div class="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg></div>';
+                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-slate-900 text-white rounded-[24px] flex items-center justify-center shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>';
               }}
             />
           </div>
