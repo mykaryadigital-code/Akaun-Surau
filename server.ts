@@ -7,18 +7,36 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import * as admin from 'firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
 
-try {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-    const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8'));
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-    console.log("Firebase Admin initialized via Base64.");
-  } else {
-    admin.initializeApp();
-    console.log("Firebase Admin initialized via ADC.");
+let adminApp: admin.app.App | null = null;
+
+function getAdminDb() {
+  if (!adminApp) {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+      try {
+        let serviceAccount;
+        const envVal = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+        if (envVal.trim().startsWith('{')) {
+          serviceAccount = JSON.parse(envVal);
+        } else {
+          serviceAccount = JSON.parse(Buffer.from(envVal, 'base64').toString('utf-8'));
+        }
+        adminApp = admin.initializeApp({ credential: admin.cert(serviceAccount) });
+        console.log("Firebase Admin initialized successfully.");
+      } catch (err: any) {
+        throw new Error("Failed to parse FIREBASE_SERVICE_ACCOUNT_BASE64. Ensure it is either valid JSON or base64 encoded.");
+      }
+    } else {
+      try {
+        adminApp = admin.initializeApp();
+        console.log("Firebase Admin initialized via ADC.");
+      } catch (err: any) {
+        throw new Error("FIREBASE_SERVICE_ACCOUNT_BASE64 is required to update the database via webhook. Please set it in your environment variables.");
+      }
+    }
   }
-} catch (err: any) {
-  console.warn("Firebase Admin failed to initialize. Webhook DB updates may fail. Set FIREBASE_SERVICE_ACCOUNT_BASE64 in .env");
+  return getFirestore(adminApp as any, 'ai-studio-sistemkewangansu-21245cda-615c-4689-801e-66fda632fa6d');
 }
 
 async function startServer() {
@@ -86,14 +104,34 @@ async function startServer() {
       console.log(`[WEBHOOK] Received from ToyyibPay. RefNo: ${refno}, Status: ${status}, BillCode: ${billcode}`);
 
       if (status === '1') {
+        // --- VERIFY PAYMENT WITH TOYYIBPAY BEFORE UPDATING ---
+        const formData = new URLSearchParams();
+        formData.append('billCode', billcode);
+        const verifyUrl = 'https://toyyibpay.com/index.php/api/getBillTransactions';
+        const verifyResponse = await fetch(verifyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData.toString()
+        });
+        const verifyData = await verifyResponse.json();
+        
+        const isAuthentic = Array.isArray(verifyData) && verifyData.some((txn: any) => txn.billpaymentStatus === '1');
+        
+        if (!isAuthentic) {
+          console.warn(`[WEBHOOK] Security Warning: Payment verification failed for billcode ${billcode}. Potential spoofing attempt.`);
+          return res.status(400).send('Verification Failed');
+        }
+
         const parts = refno ? refno.split('-') : [];
         if (parts.length >= 4) {
           const userId = parts[1];
           const packageId = parts[2];
 
-          console.log(`[WEBHOOK] Payment successful for user ${userId}, package ${packageId}`);
+          console.log(`[WEBHOOK] Payment verified & successful for user ${userId}, package ${packageId}`);
           try {
-            const db = admin.firestore();
+            const db = getAdminDb();
             const docRef = db.collection('surau_settings').doc(userId);
             const docSnap = await docRef.get();
             let currentValidUntil = Date.now();

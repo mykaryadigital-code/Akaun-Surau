@@ -27,7 +27,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'emerald',
   subscription: {
     status: 'active',
-    validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days trial
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days trial
   },
   categoriesIn: [
     'Duit Tabung Surau/Masjid',

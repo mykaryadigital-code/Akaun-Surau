@@ -17,6 +17,8 @@ import {
   PlusCircle,
   MinusCircle,
   LogOut,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { AppSettings, AppTheme, Transaction } from '../types';
 import { getTheme, THEMES } from '../utils/theme';
@@ -29,6 +31,7 @@ interface HeaderProps {
   onOpenNewTransaction: (type: 'IN' | 'OUT') => void;
   onOpenSettings: () => void;
   onThemeChange: (theme: AppTheme) => void;
+  onToggleDarkMode?: () => void;
   onLogout?: () => void;
   isSuperAdmin?: boolean;
 }
@@ -41,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNewTransaction,
   onOpenSettings,
   onThemeChange,
+  onToggleDarkMode,
   onLogout,
   isSuperAdmin,
 }) => {
@@ -232,13 +236,24 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
+            {/* Theme Toggle Button */}
+            {onToggleDarkMode && (
+              <button
+                onClick={onToggleDarkMode}
+                className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 transition flex items-center justify-center"
+                title="Tukar Mod Gelap/Terang"
+              >
+                {settings.darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+            )}
+
             {/* Settings Button */}
             <button
               onClick={onOpenSettings}
-              className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium"
+              className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium"
               title="Tetapan Sistem"
             >
-              <Settings className="w-4 h-4 text-slate-600" />
+              <Settings className="w-4 h-4 text-slate-600 dark:text-slate-400" />
               <span className="hidden sm:inline">Tetapan</span>
             </button>
 
@@ -246,10 +261,10 @@ export const Header: React.FC<HeaderProps> = ({
             {onLogout && (
               <button
                 onClick={onLogout}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg border border-slate-200 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium"
+                className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium"
                 title="Log Keluar"
               >
-                <LogOut className="w-4 h-4 text-slate-600" />
+                <LogOut className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                 <span className="hidden sm:inline">Keluar</span>
               </button>
             )}

@@ -64,6 +64,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const currentBank = settings.openingBalances.bank + bankIn - bankOut;
   const currentCash = settings.openingBalances.cash + cashIn - cashOut;
 
+  // Weekly Stats Calculation
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const weeklyIn = transactions
+    .filter((t) => t.type === 'IN' && new Date(t.date) >= sevenDaysAgo)
+    .reduce((sum, t) => sum + t.amount, 0);
+  const weeklyOut = transactions
+    .filter((t) => t.type === 'OUT' && new Date(t.date) >= sevenDaysAgo)
+    .reduce((sum, t) => sum + t.amount, 0);
+  const weeklyNet = weeklyIn - weeklyOut;
+
   const recentTransactions = [...transactions]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 6);
@@ -71,7 +82,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="space-y-6 pb-12">
       {/* Main Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Total Overall Balance */}
         <div className={`bg-gradient-to-br ${theme.gradientBg} text-white p-5 rounded-2xl shadow-sm border border-black/10 relative overflow-hidden`}>
           <div className="flex items-center justify-between">
@@ -93,81 +104,103 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Bank Balance */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Akaun Bank ({settings.org.bankName})
             </span>
-            <div className="p-2 bg-sky-50 text-sky-700 rounded-xl">
+            <div className="p-2 bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400 rounded-xl">
               <Landmark className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-slate-900 block">
+            <span className="text-2xl font-bold text-slate-900 dark:text-white block">
               RM {currentBank.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-xs text-slate-500 mt-1 block">
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
               Akaun No: {settings.org.bankAccount}
             </span>
           </div>
         </div>
 
         {/* Cash-in-hand Balance */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Peti Tunai / Cash-in-Hand
             </span>
-            <div className="p-2 bg-amber-50 text-amber-700 rounded-xl">
+            <div className="p-2 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl">
               <CreditCard className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-slate-900 block">
+            <span className="text-2xl font-bold text-slate-900 dark:text-white block">
               RM {currentCash.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-xs text-slate-500 mt-1 block">
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
               Di bawah simpanan Bendahari
             </span>
           </div>
         </div>
 
         {/* Total Income */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               Jumlah Duit Masuk
             </span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+            <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl">
               <ArrowDownRight className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-emerald-600 block">
+            <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 block">
               +RM {totalIn.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-xs text-slate-500 mt-1 block">
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
               Kutipan & Infak Terkumpul
             </span>
           </div>
         </div>
 
         {/* Total Expense */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-rose-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">
               Jumlah Perbelanjaan
             </span>
-            <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
+            <div className="p-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-xl">
               <ArrowUpRight className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-rose-600 block">
+            <span className="text-2xl font-bold text-rose-600 dark:text-rose-400 block">
               -RM {totalOut.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-xs text-slate-500 mt-1 block">
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
               Bayaran Bil, Program & Servis
+            </span>
+          </div>
+        </div>
+
+        {/* Weekly Stats */}
+        <div className="bg-slate-900 dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-800 dark:border-slate-700 text-white relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Prestasi 7 Hari Terkini
+            </span>
+            <div className="p-2 bg-white/10 text-white rounded-xl">
+              {weeklyNet >= 0 ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-bold block">
+              {weeklyNet >= 0 ? '+' : '-'}RM {Math.abs(weeklyNet).toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+              <span className="text-emerald-400">+RM{weeklyIn.toLocaleString()}</span>
+              <span className="text-slate-500">|</span>
+              <span className="text-rose-400">-RM{weeklyOut.toLocaleString()}</span>
             </span>
           </div>
         </div>
@@ -179,11 +212,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Quick Action & Recent Transactions Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Transactions List (2 cols on lg) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
+          <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900 text-base">Transaksi Terkini</h3>
-              <p className="text-xs text-slate-500">6 transaksi terbaru duit masuk & keluar</p>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Transaksi Terkini</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">6 transaksi terbaru duit masuk & keluar</p>
             </div>
             <button
               onClick={() => onNavigateTab('report')}

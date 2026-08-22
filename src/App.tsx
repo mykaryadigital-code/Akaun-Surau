@@ -148,6 +148,21 @@ export default function App() {
     }
   };
 
+  // Handler for Dark Mode Toggle
+  const toggleDarkMode = () => {
+    if (settings) {
+      updateSettings({ ...settings, darkMode: !settings.darkMode });
+    }
+  };
+
+  React.useEffect(() => {
+    if (settings?.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings?.darkMode]);
+
   // Handler to Reset Data to Default Master Prompt Preset
   const handleResetData = async () => {
     if (window.confirm("Adakah anda pasti? Tindakan ini akan memulihkan tetapan kepada lalai.")) {
@@ -186,7 +201,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col selection:bg-emerald-500 selection:text-white transition-colors duration-300">
       {/* Top Header */}
       <Header
         settings={settings}
@@ -196,6 +211,7 @@ export default function App() {
         onOpenNewTransaction={handleOpenNewTransaction}
         onOpenSettings={() => setSettingsOpen(true)}
         onThemeChange={handleThemeChange}
+        onToggleDarkMode={toggleDarkMode}
         onLogout={handleLogout}
         isSuperAdmin={isSuperAdmin}
       />
@@ -225,7 +241,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 px-4 text-center text-xs text-slate-500">
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400 mt-auto transition-colors duration-300">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>
             © {new Date().getFullYear()} {settings.org.name} ({settings.org.regNo}). Hak Cipta Terpelihara.
