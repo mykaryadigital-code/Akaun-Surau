@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import cors from 'cors';
+import fs from 'fs';
+
 // Load environment variables if any
 import dotenv from 'dotenv';
 dotenv.config();
@@ -201,14 +203,16 @@ async function startServer() {
   });
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
+  const distPath = path.join(process.cwd(), 'dist');
+  const isProd = process.env.NODE_ENV === 'production' || fs.existsSync(path.join(distPath, 'index.html'));
+
+  if (!isProd) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
