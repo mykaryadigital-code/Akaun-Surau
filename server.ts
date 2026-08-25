@@ -62,7 +62,7 @@ async function startServer() {
       const formData = new URLSearchParams();
       formData.append('userSecretKey', TOYYIBPAY_SECRET);
       formData.append('categoryCode', TOYYIBPAY_CATEGORY);
-      formData.append('billName', 'Langganan Sistem Kewangan Surau');
+      formData.append('billName', 'Langganan Akaun Surau');
       formData.append('billDescription', 'Langganan Tahunan SaaS (12 Bulan)');
       formData.append('billPriceSetting', '1'); // Fixed amount
       formData.append('billPayorInfo', '1');    // Required payer info
