@@ -63,7 +63,7 @@ export interface AppSettings {
   googleAppsScriptUrl?: string;
   darkMode?: boolean;
   subscription?: {
-    status: 'active' | 'expired';
+    status: 'trial' | 'active' | 'expired';
     validUntil: string;
   };
 }

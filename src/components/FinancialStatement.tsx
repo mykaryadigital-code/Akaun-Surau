@@ -87,6 +87,10 @@ export const FinancialStatement: React.FC<FinancialStatementProps> = ({
   }, [monthOut]);
 
   const handlePrint = () => {
+    if (settings.subscription?.status === 'trial') {
+      alert("⚠️ PERHATIAN: Fungsi cetakan dan simpan sebagai PDF tidak dibenarkan untuk versi Percubaan (Trial 7 Hari).\n\nSila naik taraf langganan anda untuk mengaktifkan fungsi cetakan penuh.");
+      return;
+    }
     window.print();
   };
 
