@@ -1,79 +1,110 @@
 {
   "entities": {
-    "SurauSettings": {
-      "title": "Surau Settings",
-      "description": "Settings and profile for a specific Surau/Masjid (Tenant)",
+    "OrganizationInfo": {
+      "title": "OrganizationInfo",
+      "description": "Details about the Surau",
       "type": "object",
       "properties": {
-        "org": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string", "maxLength": 100 },
-            "regNo": { "type": "string", "maxLength": 100 },
-            "bankName": { "type": "string", "maxLength": 100 },
-            "bankAccount": { "type": "string", "maxLength": 100 }
-          },
-          "required": ["name"]
-        },
-        "ajk": {
-          "type": "object",
-          "properties": {
-            "pengerusi": { "type": "string", "maxLength": 100 },
-            "bendahari": { "type": "string", "maxLength": 100 },
-            "setiausaha": { "type": "string", "maxLength": 100 }
-          }
-        },
-        "categoriesIn": {
-          "type": "array",
-          "items": { "type": "string", "maxLength": 100 },
-          "maxLength": 50
-        },
-        "categoriesOut": {
-          "type": "array",
-          "items": { "type": "string", "maxLength": 100 },
-          "maxLength": 50
-        },
-        "openingBalances": {
-          "type": "object",
-          "properties": {
-            "total": { "type": "number" },
-            "bank": { "type": "number" },
-            "cash": { "type": "number" }
-          }
-        },
-        "googleAppsScriptUrl": { "type": "string", "maxLength": 500 },
-        "theme": { "type": "string", "enum": ["default", "dark", "light"] }
+        "name": { "type": "string", "maxLength": 100 },
+        "regNo": { "type": "string", "maxLength": 50 },
+        "kariah": { "type": "string", "maxLength": 100 },
+        "address": { "type": "string", "maxLength": 500 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "bankName": { "type": "string", "maxLength": 100 },
+        "bankAccount": { "type": "string", "maxLength": 50 },
+        "logoUrl": { "type": "string", "maxLength": 1000 }
       },
-      "required": ["org"]
+      "required": ["name", "bankName", "bankAccount"]
+    },
+    "AJKInfo": {
+      "title": "AJKInfo",
+      "description": "Committee members",
+      "type": "object",
+      "properties": {
+        "pengerusi": { "type": "string", "maxLength": 100 },
+        "bendahari": { "type": "string", "maxLength": 100 },
+        "setiausaha": { "type": "string", "maxLength": 100 }
+      }
+    },
+    "OpeningBalances": {
+      "title": "OpeningBalances",
+      "description": "Initial balances",
+      "type": "object",
+      "properties": {
+        "total": { "type": "number" },
+        "bank": { "type": "number" },
+        "cash": { "type": "number" }
+      }
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "description": "Subscription status",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["trial", "active", "expired"] },
+        "validUntil": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["status", "validUntil"]
+    },
+    "FirebaseConfig": {
+      "title": "FirebaseConfig",
+      "description": "Firebase configuration",
+      "type": "object",
+      "properties": {
+        "apiKey": { "type": "string", "maxLength": 200 },
+        "authDomain": { "type": "string", "maxLength": 200 },
+        "projectId": { "type": "string", "maxLength": 200 },
+        "storageBucket": { "type": "string", "maxLength": 200 },
+        "messagingSenderId": { "type": "string", "maxLength": 200 },
+        "appId": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "SurauSettings": {
+      "title": "SurauSettings",
+      "description": "Master settings for a Surau",
+      "type": "object",
+      "properties": {
+        "org": { "$ref": "#/entities/OrganizationInfo" },
+        "ajk": { "$ref": "#/entities/AJKInfo" },
+        "openingBalances": { "$ref": "#/entities/OpeningBalances" },
+        "theme": { "type": "string", "maxLength": 50 },
+        "categoriesIn": { "type": "array", "items": { "type": "string", "maxLength": 50 }, "maxLength": 100 },
+        "categoriesOut": { "type": "array", "items": { "type": "string", "maxLength": 50 }, "maxLength": 100 },
+        "firebaseConfig": { "$ref": "#/entities/FirebaseConfig" },
+        "googleAppsScriptUrl": { "type": "string", "maxLength": 1000 },
+        "darkMode": { "type": "boolean" },
+        "subscription": { "$ref": "#/entities/Subscription" }
+      },
+      "required": ["org", "ajk", "openingBalances", "theme"]
     },
     "Transaction": {
       "title": "Transaction",
-      "description": "A single financial transaction for a Surau",
+      "description": "A financial transaction",
       "type": "object",
       "properties": {
-        "refNo": { "type": "string", "maxLength": 50 },
+        "id": { "type": "string", "maxLength": 100 },
+        "refNo": { "type": "string", "maxLength": 100 },
         "date": { "type": "string", "maxLength": 20 },
         "type": { "type": "string", "enum": ["IN", "OUT"] },
         "category": { "type": "string", "maxLength": 100 },
         "amount": { "type": "number" },
         "paymentMethod": { "type": "string", "maxLength": 50 },
-        "partyName": { "type": "string", "maxLength": 150 },
-        "notes": { "type": "string", "maxLength": 500 },
+        "partyName": { "type": "string", "maxLength": 200 },
+        "notes": { "type": "string", "maxLength": 1000 },
         "attachmentUrl": { "type": "string", "maxLength": 1000 },
-        "createdAt": { "type": "string" },
-        "updatedAt": { "type": "string" }
+        "createdAt": { "type": "number" }
       },
-      "required": ["refNo", "date", "type", "category", "amount", "paymentMethod"]
+      "required": ["id", "refNo", "date", "type", "category", "amount", "paymentMethod", "partyName", "createdAt"]
     }
   },
   "firestore": {
     "/surau_settings/{orgId}": {
-      "schema": { "$ref": "#/entities/SurauSettings" },
-      "description": "Tenant settings mapped by the owner's Firebase UID"
+      "schema": "SurauSettings",
+      "description": "Settings for the Surau."
     },
     "/surau_settings/{orgId}/transactions/{transactionId}": {
-      "schema": { "$ref": "#/entities/Transaction" },
-      "description": "Transactions belonging to a specific tenant"
+      "schema": "Transaction",
+      "description": "Transactions belonging to the Surau."
     }
   }
 }

@@ -1,19 +1,43 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper Functions
-    function isOwner(orgId) {
-      return request.auth != null && request.auth.uid == orgId;
+    // Globals
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(orgId) { return isSignedIn() && request.auth.uid == orgId; }
+    function existing() { return resource.data; }
+    function incoming() { return request.resource.data; }
+    
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
     }
 
-    // Master Match: SurauSettings
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
     match /surau_settings/{orgId} {
-      allow read, write: if isOwner(orgId);
+      allow read: if isOwner(orgId);
       
-      // Subcollection: Transactions
+      // CREATE: Hanya benarkan status 'trial' jika dicipta baru
+      allow create: if isOwner(orgId) 
+        && isValidId(orgId)
+        && (!('subscription' in incoming()) || incoming().subscription.status == 'trial');
+        
+      // UPDATE: Pelanggan BOLEH kemas kini profil, TAPI DILARANG menukar status langganan.
+      // Hanya Webhook (Admin SDK) yang boleh mengubah langganan.
+      allow update: if isOwner(orgId)
+        && (
+          !('subscription' in incoming()) 
+          || (('subscription' in existing()) && incoming().subscription == existing().subscription)
+          || (!('subscription' in existing()) && incoming().subscription.status == 'trial')
+        );
+
+      allow delete: if isOwner(orgId);
+      
       match /transactions/{transactionId} {
-        allow read, write: if isOwner(orgId);
+        allow read: if isOwner(orgId);
+        allow create, update: if isOwner(orgId) && isValidId(transactionId);
+        allow delete: if isOwner(orgId);
       }
     }
   }

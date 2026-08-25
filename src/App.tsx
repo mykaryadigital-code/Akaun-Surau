@@ -104,21 +104,12 @@ export default function App() {
             
             if (pkg === 'monthly') {
               daysToAdd = 30;
-              successMsg = 'Pembayaran berjaya! Langganan bulanan (30 hari) anda telah diaktifkan.';
+              successMsg = 'Pembayaran berjaya! Langganan bulanan (30 hari) anda telah diaktifkan. Sila tunggu sebentar sementara sistem mengemas kini akaun anda.';
             } else if (pkg === 'pro') {
               daysToAdd = 36500; // 100 years (Lifetime / White Label)
-              successMsg = 'Pembayaran berjaya! Pakej PRO (White Label) anda telah diaktifkan untuk akses seumur hidup.';
+              successMsg = 'Pembayaran berjaya! Pakej PRO (White Label) anda telah diaktifkan untuk akses seumur hidup. Sila tunggu sebentar sementara sistem mengemas kini akaun anda.';
             }
 
-            const newValidUntil = new Date(baseTime + (daysToAdd * 24 * 60 * 60 * 1000)).toISOString();
-            
-            await updateSettings({
-              ...settings,
-              subscription: {
-                status: 'active',
-                validUntil: newValidUntil
-              }
-            });
             alert(successMsg);
           } else {
             alert('Pembayaran belum diterima. Jika duit telah ditolak, sila hubungi Admin Surau.');
