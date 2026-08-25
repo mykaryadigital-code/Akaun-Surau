@@ -14,6 +14,7 @@ export interface OrganizationInfo {
   regNo: string;
   kariah: string;
   address: string;
+  phone?: string;
   bankName: string;
   bankAccount: string;
   logoUrl?: string;

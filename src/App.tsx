@@ -301,6 +301,7 @@ export default function App() {
         <Paywall 
           settings={settings} 
           uid={user?.uid}
+          userEmail={user?.email || undefined}
           paymentVerifying={paymentVerifying} 
           onCloseSimulated={forceShowPaywall || manualPaywall ? () => {
             setForceShowPaywall(false);

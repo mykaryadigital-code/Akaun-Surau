@@ -5,10 +5,11 @@ import { AppSettings } from '../types';
 interface PaywallProps {
   settings: AppSettings;
   uid?: string;
+  userEmail?: string;
   paymentVerifying?: boolean;
 }
 
-export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, uid, paymentVerifying, onCloseSimulated }) => {
+export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }> = ({ settings, uid, userEmail, paymentVerifying, onCloseSimulated }) => {
   const [isCreatingBill, setIsCreatingBill] = useState(false);
 
   const handlePayment = async (packageId: string, amount: number, billDescription: string) => {
@@ -20,9 +21,9 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount,
-          name: settings.org.name,
-          email: 'admin@surau.com',
-          phone: '0123456789',
+          name: settings.org.name || 'Admin Surau',
+          email: userEmail || 'admin@surau.com',
+          phone: settings.org.phone || '0123456789',
           returnUrl: window.location.origin,
           packageId,
           billDescription,

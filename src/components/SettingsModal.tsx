@@ -308,6 +308,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
 
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Nombor Telefon (Utama / Admin)
+                </label>
+                <input
+                  type="tel"
+                  value={org.phone || ''}
+                  onChange={(e) => setOrg({ ...org, phone: e.target.value })}
+                  placeholder="Contoh: 0123456789"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl"
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
