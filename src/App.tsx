@@ -86,7 +86,14 @@ export default function App() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ billCode: billcode })
           });
-          const data = await response.json();
+          let data;
+          try {
+            const textResponse = await response.text();
+            data = JSON.parse(textResponse);
+          } catch (parseErr) {
+            alert("Ralat Sistem: Backend pelayan tidak dijumpai.\n\nSistem mengesan anda menjalankan aplikasi ini di pelayan statik (seperti Vercel). Sila pastikan backend Node.js (server.ts) di-deploy dengan betul.");
+            return;
+          }
           
           if (data.success && data.isPaid) {
             const currentExpiry = new Date(settings.subscription?.validUntil || Date.now()).getTime();

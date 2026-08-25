@@ -30,7 +30,15 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
         }),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        const textResponse = await response.text();
+        data = JSON.parse(textResponse);
+      } catch (parseError) {
+        alert("Ralat Sistem: Backend pelayan tidak dijumpai.\n\nSistem mengesan anda menjalankan aplikasi ini di pelayan statik (seperti Vercel) tanpa backend Express. \n\nSistem langganan memerlukan pelayan Node.js yang sah untuk berhubung dengan API pembayaran secara selamat. Sila rujuk panduan pemasangan.");
+        setIsCreatingBill(false);
+        return;
+      }
       
       if (data.success && data.paymentUrl) {
         // Redirect to ToyyibPay
