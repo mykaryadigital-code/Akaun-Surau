@@ -172,7 +172,7 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
                   </div>
                 </div>
                 <div className="mb-4 flex items-end gap-1">
-                  <span className="text-3xl font-black text-slate-900">RM799</span>
+                  <span className="text-3xl font-black text-slate-900">RM1799</span>
                   <span className="text-slate-500 text-[10px] font-medium uppercase tracking-wider mb-1.5">Sekali Bayar</span>
                 </div>
                 <p className="text-xs text-slate-600 mb-6 h-8">Miliki sistem ini & jual semula di bawah jenama sendiri.</p>
@@ -186,11 +186,10 @@ export const Paywall: React.FC<PaywallProps & { onCloseSimulated?: () => void }>
                 </ul>
               </div>
               <button
-                onClick={() => handlePayment('pro', 79900, 'Pakej PRO + White Label')}
-                disabled={paymentVerifying || isCreatingBill}
-                className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white disabled:opacity-50 font-bold py-3.5 px-4 rounded-xl transition shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 text-sm"
+                disabled={true}
+                className="w-full bg-slate-300 text-slate-500 cursor-not-allowed font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"
               >
-                <CreditCard className="w-4 h-4" /> Dapatkan Pakej PRO
+                AKAN DATANG
               </button>
             </div>
 
