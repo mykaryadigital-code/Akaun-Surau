@@ -7,22 +7,22 @@ import { AppSettings, Transaction } from '../types';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   org: {
-    name: 'Surau Al-Jannah',
-    regNo: 'JAIS/05/01/002/2018',
-    kariah: 'Kariah Taman Sri Jannah',
-    address: 'Jalan Jannah 1, Taman Sri Jannah, 40000 Shah Alam, Selangor',
-    bankName: 'Bank Islam',
-    bankAccount: '12029010045678',
+    name: 'Sistem Kewangan Masjid',
+    regNo: 'Sila kemas kini no pendaftaran',
+    kariah: 'Sila kemas kini maklumat kariah',
+    address: 'Sila kemas kini alamat penuh',
+    bankName: 'Nama Bank (Cth: Maybank)',
+    bankAccount: 'No Akaun Bank',
   },
   ajk: {
-    pengerusi: 'En.Karim Bin Syamsuddin',
-    bendahari: 'Haji Bakil Bin Luki',
-    setiausaha: 'Encik Zulkifli Bin Mansor',
+    pengerusi: 'Nama Pengerusi',
+    bendahari: 'Nama Bendahari',
+    setiausaha: 'Nama Setiausaha',
   },
   openingBalances: {
-    total: 15500.0,
-    bank: 14200.0,
-    cash: 1300.0,
+    total: 0.0,
+    bank: 0.0,
+    cash: 0.0,
   },
   theme: 'emerald',
   subscription: {
