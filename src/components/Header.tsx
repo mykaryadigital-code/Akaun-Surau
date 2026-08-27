@@ -19,6 +19,7 @@ import {
   LogOut,
   Moon,
   Sun,
+  BadgeCheck,
 } from 'lucide-react';
 import { AppSettings, AppTheme, Transaction } from '../types';
 import { getTheme, THEMES } from '../utils/theme';
@@ -101,9 +102,25 @@ export const Header: React.FC<HeaderProps> = ({
               <img src={settings.org.logoUrl} alt="Logo" className="h-16 sm:h-20 w-auto object-contain bg-white rounded-lg p-1 shrink-0 shadow-sm border border-slate-200" />
             )}
             <div>
-              <h1 className={`text-xl sm:text-2xl font-bold tracking-tight ${isWhite ? 'text-slate-900' : 'text-white'} mb-0.5`}>
-                {settings.org.name}
-              </h1>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h1 className={`text-xl sm:text-2xl font-bold tracking-tight ${isWhite ? 'text-slate-900' : 'text-white'}`}>
+                  {settings.org.name}
+                </h1>
+                {settings.subscription?.status === 'active' && (
+                  <span 
+                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md shadow-sm border"
+                    style={{
+                      backgroundColor: isWhite ? '#f0fdf4' : 'rgba(255, 255, 255, 0.2)',
+                      color: isWhite ? '#166534' : '#fff',
+                      borderColor: isWhite ? '#bbf7d0' : 'rgba(255, 255, 255, 0.3)',
+                    }}
+                    title="Akaun PRO Aktif"
+                  >
+                    <BadgeCheck className="w-3.5 h-3.5" />
+                    PRO
+                  </span>
+                )}
+              </div>
               <div className={`text-xs ${theme.headerAccent} flex flex-col gap-1`}>
                 <span className={`font-medium ${isWhite ? 'text-slate-600' : 'text-white/90'} sm:text-sm`}>{settings.org.kariah}</span>
                 <div className="flex flex-wrap items-center gap-2 mt-0.5">
