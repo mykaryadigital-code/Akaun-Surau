@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '../services/firebase';
 import { 
   signInWithPopup, 
-  signInWithRedirect, 
-  getRedirectResult, 
   GoogleAuthProvider, 
   signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword 
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 
 const MosqueIcon = ({ className }: { className?: string }) => (
+
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 24 24" 
@@ -58,37 +58,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-
-  useEffect(() => {
-    // Handle redirect result if redirected back on mobile devices
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result && result.user) {
-          onLoginSuccess();
-        }
-      })
-      .catch((err) => {
-        console.error('Redirect Auth Error:', err);
-      });
-  }, [onLoginSuccess]);
+  const [resetMessage, setResetMessage] = useState('');
 
   const handleGoogleLogin = async () => {
     setError('');
+    setResetMessage('');
     setLoading(true);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
-    // Check if on mobile device
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
     try {
-      if (isMobile) {
-        // Use redirect on mobile to avoid popup IndexedDB closing errors
-        await signInWithRedirect(auth, provider);
-        return;
-      }
-
-      // Try popup for desktop
       await signInWithPopup(auth, provider);
       onLoginSuccess();
     } catch (err: any) {
@@ -103,13 +82,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
       } else if (errCode === 'auth/unauthorized-domain' || errMsg.includes('unauthorized-domain')) {
         setError('Domain akaun-surau.vercel.app belum ditambah dalam Authorized Domains di Firebase Console.');
       } else if (errMsg.includes('closing') || errMsg.includes('hidden') || errMsg.includes('IndexedDB') || errCode === 'auth/popup-blocked') {
-        // If popup fails or is blocked on mobile, fallback to redirect
-        try {
-          await signInWithRedirect(auth, provider);
-          return;
-        } catch (redirectErr: any) {
-          setError('Sila gunakan log masuk E-mel di bawah atau pastikan pelayar membenarkan pop-up.');
-        }
+        setError('Sesi pelayar telefon ditutup sementara. Sila tekan "Lupa Kata Laluan" di bawah untuk menggunakan log masuk E-mel.');
       } else {
         setError(err.message || 'Ralat log masuk dengan Google. Sila cuba log masuk E-mel di bawah.');
       }
@@ -121,6 +94,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setResetMessage('');
     setLoading(true);
     try {
       if (isRegistering) {
@@ -143,6 +117,31 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
         setError('Format e-mel tidak sah.');
       } else {
         setError(err.message || 'Ralat pengesahan');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Sila masukkan alamat e-mel anda dahulu di ruangan atas untuk tetapkan semula kata laluan.');
+      return;
+    }
+    setError('');
+    setResetMessage('');
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetMessage(`Pautan tetapan semula kata laluan telah dihantar ke ${email}. Sila semak peti masuk anda.`);
+    } catch (err: any) {
+      console.error('Reset Password Error:', err);
+      if (err.code === 'auth/user-not-found') {
+        setError('Alamat e-mel ini tidak dijumpai dalam pangkalan data.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Format e-mel tidak sah.');
+      } else {
+        setError(err.message || 'Ralat semasa menghantar e-mel tetapan semula.');
       }
     } finally {
       setLoading(false);
@@ -190,6 +189,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
               {error}
             </div>
           )}
+          {resetMessage && (
+            <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-sm text-center font-medium">
+              {resetMessage}
+            </div>
+          )}
           
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1.5">
@@ -205,23 +209,35 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Kata Laluan
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-semibold text-slate-700">
+                Kata Laluan
+              </label>
+              {!isRegistering && (
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-xs font-medium text-emerald-600 hover:text-emerald-700"
+                >
+                  Lupa Kata Laluan?
+                </button>
+              )}
+            </div>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-slate-50 focus:bg-white text-slate-900"
               placeholder="••••••••"
-              required
+              required={!resetMessage}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition mt-2"
+            disabled={loading}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition mt-2 disabled:opacity-70"
           >
-            {isRegistering ? 'Daftar Akaun Baru' : 'Log Masuk E-mel'}
+            {loading ? 'Sila Tunggu...' : (isRegistering ? 'Daftar Akaun Baru' : 'Log Masuk E-mel')}
           </button>
         </form>
 
