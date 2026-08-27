@@ -52,17 +52,34 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleGoogleLogin = async () => {
+    setError('');
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithPopup(auth, provider);
       onLoginSuccess();
     } catch (err: any) {
-      setError(err.message || 'Ralat log masuk dengan Google');
+      console.error('Google Auth Error:', err);
+      const errMsg = err?.message || '';
+      const errCode = err?.code || '';
+
+      if (errCode === 'auth/popup-closed-by-user' || errMsg.includes('closed-by-user')) {
+        setError('Tetingkap log masuk Google telah ditutup sebelum selesai.');
+      } else if (errCode === 'auth/cancelled-popup-request') {
+        setError('Permintaan log masuk Google telah dibatalkan.');
+      } else if (errCode === 'auth/unauthorized-domain' || errMsg.includes('unauthorized-domain')) {
+        setError('Domain akaun-surau.vercel.app belum ditambah dalam Authorized Domains di Firebase Console.');
+      } else if (errMsg.includes('closing') || errMsg.includes('hidden') || errMsg.includes('IndexedDB')) {
+        setError('Sesi pelayar telefon ditutup sementara. Sila cuba tekan "Teruskan dengan Google" sekali lagi atau gunakan log masuk E-mel di bawah.');
+      } else {
+        setError(err.message || 'Ralat log masuk dengan Google. Sila cuba lagi.');
+      }
     }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     try {
       if (isRegistering) {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -71,10 +88,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
       }
       onLoginSuccess();
     } catch (err: any) {
+      console.error('Email Auth Error:', err);
       if (err.code === 'auth/operation-not-allowed') {
         setError('Log masuk E-mel/Kata Laluan belum diaktifkan di Firebase Console.');
-      } else if (err.code === 'auth/invalid-credential') {
-        setError('E-mel atau kata laluan tidak sah');
+      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        setError('E-mel atau kata laluan tidak sah / akaun tidak dijumpai.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('Alamat e-mel ini telah didaftarkan. Sila log masuk.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Kata laluan terlalu pendek (minimum 6 aksara).');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Format e-mel tidak sah.');
       } else {
         setError(err.message || 'Ralat pengesahan');
       }
