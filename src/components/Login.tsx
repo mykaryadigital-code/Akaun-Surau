@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth } from '../services/firebase';
-import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult, 
+  GoogleAuthProvider, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword 
+} from 'firebase/auth';
 
 const MosqueIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -49,13 +56,39 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+
+  useEffect(() => {
+    // Handle redirect result if redirected back on mobile devices
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
+          onLoginSuccess();
+        }
+      })
+      .catch((err) => {
+        console.error('Redirect Auth Error:', err);
+      });
+  }, [onLoginSuccess]);
 
   const handleGoogleLogin = async () => {
     setError('');
+    setLoading(true);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    // Check if on mobile device
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
     try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
+      if (isMobile) {
+        // Use redirect on mobile to avoid popup IndexedDB closing errors
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      // Try popup for desktop
       await signInWithPopup(auth, provider);
       onLoginSuccess();
     } catch (err: any) {
@@ -69,17 +102,26 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
         setError('Permintaan log masuk Google telah dibatalkan.');
       } else if (errCode === 'auth/unauthorized-domain' || errMsg.includes('unauthorized-domain')) {
         setError('Domain akaun-surau.vercel.app belum ditambah dalam Authorized Domains di Firebase Console.');
-      } else if (errMsg.includes('closing') || errMsg.includes('hidden') || errMsg.includes('IndexedDB')) {
-        setError('Sesi pelayar telefon ditutup sementara. Sila cuba tekan "Teruskan dengan Google" sekali lagi atau gunakan log masuk E-mel di bawah.');
+      } else if (errMsg.includes('closing') || errMsg.includes('hidden') || errMsg.includes('IndexedDB') || errCode === 'auth/popup-blocked') {
+        // If popup fails or is blocked on mobile, fallback to redirect
+        try {
+          await signInWithRedirect(auth, provider);
+          return;
+        } catch (redirectErr: any) {
+          setError('Sila gunakan log masuk E-mel di bawah atau pastikan pelayar membenarkan pop-up.');
+        }
       } else {
-        setError(err.message || 'Ralat log masuk dengan Google. Sila cuba lagi.');
+        setError(err.message || 'Ralat log masuk dengan Google. Sila cuba log masuk E-mel di bawah.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       if (isRegistering) {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -102,6 +144,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, orgName }) => {
       } else {
         setError(err.message || 'Ralat pengesahan');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
