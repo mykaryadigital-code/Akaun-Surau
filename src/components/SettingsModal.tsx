@@ -166,17 +166,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <Palette className="w-4 h-4" />
             Tema Warna
           </button>
-          <button
-            onClick={() => setActiveSubTab('sync')}
-            className={`px-4 py-3 border-b-2 flex items-center gap-1.5 shrink-0 ${
-              activeSubTab === 'sync'
-                ? 'border-emerald-600 text-emerald-800 bg-white font-bold'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Cloud className="w-4 h-4" />
-            Penyegerakan & Backup
-          </button>
+          {isSuperAdmin && (
+            <button
+              onClick={() => setActiveSubTab('sync')}
+              className={`px-4 py-3 border-b-2 flex items-center gap-1.5 shrink-0 ${
+                activeSubTab === 'sync'
+                  ? 'border-emerald-600 text-emerald-800 bg-white font-bold'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Cloud className="w-4 h-4" />
+              Penyegerakan & Backup
+            </button>
+          )}
         </div>
 
         {/* Form Body */}
@@ -489,7 +491,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {/* SubTab 5: Sync, Backup & Reset */}
-          {activeSubTab === 'sync' && (
+          {activeSubTab === 'sync' && isSuperAdmin && (
             <div className="space-y-4">
               {/* Built-in Cloud Sync Note */}
               <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
