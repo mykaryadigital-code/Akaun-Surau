@@ -98,14 +98,20 @@ export function useFirestoreData(user: User | null) {
     try {
       const txRef = doc(db, 'surau_settings', user.uid, 'transactions', tx.id);
       const dataToSave = { ...tx, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-      // Remove undefined values
-      if (dataToSave.attachmentUrl === undefined) {
-        delete dataToSave.attachmentUrl;
-      }
-      if (dataToSave.notes === undefined) {
-        delete dataToSave.notes;
-      }
-      await setDoc(txRef, dataToSave);
+      
+      const sanitizeObj = (obj: any): any => {
+        if (Array.isArray(obj)) return obj.map(sanitizeObj);
+        if (obj !== null && typeof obj === 'object') {
+          return Object.fromEntries(
+            Object.entries(obj)
+              .filter(([_, v]) => v !== undefined)
+              .map(([k, v]) => [k, sanitizeObj(v)])
+          );
+        }
+        return obj;
+      };
+
+      await setDoc(txRef, sanitizeObj(dataToSave));
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, `surau_settings/${user.uid}/transactions/${tx.id}`);
     }
@@ -116,13 +122,20 @@ export function useFirestoreData(user: User | null) {
     try {
       const txRef = doc(db, 'surau_settings', user.uid, 'transactions', tx.id);
       const dataToSave = { ...tx, updatedAt: new Date().toISOString() };
-      if (dataToSave.attachmentUrl === undefined) {
-        delete dataToSave.attachmentUrl;
-      }
-      if (dataToSave.notes === undefined) {
-        delete dataToSave.notes;
-      }
-      await setDoc(txRef, dataToSave, { merge: true });
+
+      const sanitizeObj = (obj: any): any => {
+        if (Array.isArray(obj)) return obj.map(sanitizeObj);
+        if (obj !== null && typeof obj === 'object') {
+          return Object.fromEntries(
+            Object.entries(obj)
+              .filter(([_, v]) => v !== undefined)
+              .map(([k, v]) => [k, sanitizeObj(v)])
+          );
+        }
+        return obj;
+      };
+
+      await setDoc(txRef, sanitizeObj(dataToSave), { merge: true });
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, `surau_settings/${user.uid}/transactions/${tx.id}`);
     }

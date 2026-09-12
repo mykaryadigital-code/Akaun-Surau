@@ -15,6 +15,7 @@ import { Dashboard } from './components/Dashboard';
 import { Ledger } from './components/Ledger';
 import { TransactionModal } from './components/TransactionModal';
 import { FinancialStatement } from './components/FinancialStatement';
+import { IslamicFinanceGuide } from './components/IslamicFinanceGuide';
 import { SettingsModal } from './components/SettingsModal';
 import { Login } from './components/Login';
 import { Paywall } from './components/Paywall';
@@ -235,6 +236,10 @@ export default function App() {
 
         {activeTab === 'report' && (
           <FinancialStatement settings={settings} transactions={transactions} />
+        )}
+
+        {activeTab === 'guidelines' && (
+          <IslamicFinanceGuide onNavigateToExpense={() => handleOpenNewTransaction('OUT')} />
         )}
       </main>
 

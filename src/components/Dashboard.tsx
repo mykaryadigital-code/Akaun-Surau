@@ -13,12 +13,16 @@ import {
   FileSpreadsheet,
   PlusCircle,
   MinusCircle,
-  Search,
   ChevronRight,
+  Building2,
+  Hammer,
+  HeartHandshake,
+  Scale,
 } from 'lucide-react';
 import { AppSettings, Transaction } from '../types';
 import { getTheme } from '../utils/theme';
 import { DashboardCharts } from './DashboardCharts';
+import { calculateAllFundBalances, getTransactionFundCategory } from '../utils/fundCategory';
 
 interface DashboardProps {
   settings: AppSettings;
@@ -35,7 +39,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const theme = getTheme(settings.theme);
 
-  // Totals Calculation
+  // 1. Calculate Fund Balances (Tabung Am, Tabung Pembangunan, Dana Khas, Jumlah Keseluruhan)
+  const fundSummary = calculateAllFundBalances(transactions, settings.openingBalances.total);
+
+  // 2. Totals Calculation
   const totalIn = transactions
     .filter((t) => t.type === 'IN')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -60,7 +67,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     .filter((t) => t.type === 'OUT' && t.paymentMethod === 'Tunai')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const currentTotal = settings.openingBalances.total + totalIn - totalOut;
   const currentBank = settings.openingBalances.bank + bankIn - bankOut;
   const currentCash = settings.openingBalances.cash + cashIn - cashOut;
 
@@ -81,28 +87,108 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Main Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Total Overall Balance */}
-        <div className={`bg-gradient-to-br ${theme.gradientBg} text-white p-5 rounded-2xl shadow-sm border border-black/10 relative overflow-hidden`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-semibold uppercase tracking-wider ${theme.id === 'white' ? 'text-slate-500' : 'text-white/80'}`}>
-              Baki Keseluruhan
-            </span>
-            <div className="p-2 bg-black/10 rounded-xl">
-              <Wallet className={`w-5 h-5 ${theme.id === 'white' ? 'text-slate-700' : 'text-white/90'}`} />
+      
+      {/* 1. PRIMARY SECTION: Baki Mengikut Kategori Dana */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Tabung Am */}
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden transition-all hover:border-emerald-400">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                Tabung Am
+              </span>
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-xl">
+                <Building2 className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <span className="text-2xl font-black text-slate-900 dark:text-white block tracking-tight">
+                RM {fundSummary.tabungAm.balance.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+              </span>
+              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500">
+                <span className="text-emerald-600 font-semibold" title="Jumlah Terima">
+                  +{fundSummary.tabungAm.totalIn.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-rose-500 font-semibold" title="Jumlah Belanja">
+                  -{fundSummary.tabungAm.totalOut.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
           </div>
-          <div className="mt-3">
-            <span className={`text-2xl font-extrabold tracking-tight block ${theme.id === 'white' ? 'text-slate-900' : 'text-white'}`}>
-              RM {currentTotal.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
-            </span>
-            <span className={`text-[11px] mt-1 block ${theme.id === 'white' ? 'text-slate-500' : 'text-white/70'}`}>
-              Termasuk Baki Awal + Transaksi
-            </span>
+
+          {/* Tabung Pembangunan */}
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden transition-all hover:border-amber-400">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                Tabung Pembangunan
+              </span>
+              <div className="p-2 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl">
+                <Hammer className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <span className="text-2xl font-black text-slate-900 dark:text-white block tracking-tight">
+                RM {fundSummary.tabungPembangunan.balance.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+              </span>
+              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500">
+                <span className="text-emerald-600 font-semibold" title="Jumlah Terima">
+                  +{fundSummary.tabungPembangunan.totalIn.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-rose-500 font-semibold" title="Jumlah Belanja">
+                  -{fundSummary.tabungPembangunan.totalOut.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Dana Khas */}
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden transition-all hover:border-purple-400">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
+                Dana Khas
+              </span>
+              <div className="p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 rounded-xl">
+                <HeartHandshake className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <span className="text-2xl font-black text-slate-900 dark:text-white block tracking-tight">
+                RM {fundSummary.danaKhas.balance.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+              </span>
+              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500">
+                <span className="text-emerald-600 font-semibold" title="Jumlah Terima">
+                  +{fundSummary.danaKhas.totalIn.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-rose-500 font-semibold" title="Jumlah Belanja">
+                  -{fundSummary.danaKhas.totalOut.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Jumlah Keseluruhan */}
+          <div className={`bg-gradient-to-br ${theme.gradientBg} text-white p-5 rounded-2xl shadow-sm border border-black/10 relative overflow-hidden`}>
+            <div className="flex items-center justify-between">
+              <span className={`text-xs font-bold uppercase tracking-wider ${theme.id === 'white' ? 'text-slate-700' : 'text-white/90'}`}>
+                Jumlah Keseluruhan
+              </span>
+              <div className="p-2 bg-black/10 rounded-xl">
+                <Wallet className={`w-5 h-5 ${theme.id === 'white' ? 'text-slate-700' : 'text-white/90'}`} />
+              </div>
+            </div>
+            <div className="mt-3">
+              <span className={`text-2xl font-black tracking-tight block ${theme.id === 'white' ? 'text-slate-900' : 'text-white'}`}>
+                RM {fundSummary.totalOverall.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+              </span>
+              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/20 text-[11px]">
+                <span className={theme.id === 'white' ? 'text-slate-500' : 'text-white/80'}>Semua Tabung & Akaun</span>
+                <span className={`font-bold ${theme.id === 'white' ? 'text-slate-700' : 'text-white'}`}>Bank + Tunai</span>
+              </div>
+            </div>
           </div>
         </div>
 
+      {/* 2. SECONDARY METRICS: Bank, Cash, Income, Expense, Weekly */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Bank Balance */}
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between">
@@ -114,11 +200,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-slate-900 dark:text-white block">
+            <span className="text-xl font-extrabold text-slate-900 dark:text-white block">
               RM {currentBank.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-              Akaun No: {settings.org.bankAccount}
+            <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block font-mono">
+              {settings.org.bankAccount}
             </span>
           </div>
         </div>
@@ -127,14 +213,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Peti Tunai / Cash-in-Hand
+              Peti Tunai (Cash-in-Hand)
             </span>
             <div className="p-2 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-xl">
               <CreditCard className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-slate-900 dark:text-white block">
+            <span className="text-xl font-extrabold text-slate-900 dark:text-white block">
               RM {currentCash.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
             <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
@@ -154,7 +240,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 block">
+            <span className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 block">
               +RM {totalIn.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
             <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
@@ -174,33 +260,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-rose-600 dark:text-rose-400 block">
+            <span className="text-xl font-extrabold text-rose-600 dark:text-rose-400 block">
               -RM {totalOut.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
             </span>
             <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
               Bayaran Bil, Program & Servis
-            </span>
-          </div>
-        </div>
-
-        {/* Weekly Stats */}
-        <div className="bg-slate-900 dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-800 dark:border-slate-700 text-white relative overflow-hidden transition-colors">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Prestasi 7 Hari Terkini
-            </span>
-            <div className="p-2 bg-white/10 text-white rounded-xl">
-              {weeklyNet >= 0 ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-2xl font-bold block">
-              {weeklyNet >= 0 ? '+' : '-'}RM {Math.abs(weeklyNet).toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-xs text-slate-400 mt-1 flex items-center gap-2">
-              <span className="text-emerald-400">+RM{weeklyIn.toLocaleString()}</span>
-              <span className="text-slate-500">|</span>
-              <span className="text-rose-400">-RM{weeklyOut.toLocaleString()}</span>
             </span>
           </div>
         </div>
@@ -219,73 +283,138 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <p className="text-xs text-slate-500 dark:text-slate-400">6 transaksi terbaru duit masuk & keluar</p>
             </div>
             <button
-              onClick={() => onNavigateTab('report')}
-              className="text-xs font-semibold text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 transition"
+              onClick={() => onNavigateTab('ledger')}
+              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 transition"
             >
-              Penyata Kewangan
+              Lihat Buku Tunai <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100">
-            {recentTransactions.map((tx) => (
-              <div
-                key={tx.id}
-                className="p-4 hover:bg-slate-50/80 transition flex items-center justify-between gap-3"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
-                      tx.type === 'IN'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
-                    }`}
-                  >
-                    {tx.type === 'IN' ? '+IN' : '-OUT'}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-xs sm:text-sm text-slate-900">
-                        {tx.partyName || tx.category}
-                      </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                        {tx.refNo}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-0.5">
-                      <span>{tx.date}</span>
-                      <span>•</span>
-                      <span className="font-medium text-slate-700">{tx.category}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <span
-                    className={`block font-extrabold text-sm sm:text-base ${
-                      tx.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'
-                    }`}
-                  >
-                    {tx.type === 'IN' ? '+' : '-'}RM{' '}
-                    {tx.amount.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
-                  </span>
-                  <div className="flex items-center justify-end gap-1.5 mt-1">
-                    <span className="text-[10px] text-slate-400">{tx.paymentMethod}</span>
-                  </div>
-                </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {recentTransactions.length === 0 ? (
+              <div className="p-8 text-center text-slate-400 text-sm">
+                Belum ada transaksi direkodkan.
               </div>
-            ))}
+            ) : (
+              recentTransactions.map((tx) => {
+                const fund = getTransactionFundCategory(tx);
+                return (
+                  <div
+                    key={tx.id}
+                    className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`p-2.5 rounded-xl ${
+                          tx.type === 'IN'
+                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
+                            : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10'
+                        }`}
+                      >
+                        {tx.type === 'IN' ? (
+                          <ArrowDownRight className="w-4 h-4" />
+                        ) : (
+                          <ArrowUpRight className="w-4 h-4" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-white text-sm">
+                            {tx.partyName || tx.source || tx.category}
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              fund === 'Tabung Pembangunan'
+                                ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                : fund === 'Dana Khas'
+                                ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            }`}
+                          >
+                            {fund}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-0.5">
+                          <span>{tx.date}</span>
+                          <span>•</span>
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            {tx.source ? `${tx.source} • ` : ''}{tx.category}
+                          </span>
+                          {tx.purpose && (
+                            <>
+                              <span>•</span>
+                              <span className="italic text-slate-600 dark:text-slate-400">Tujuan: {tx.purpose}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span
+                        className={`block font-extrabold text-sm sm:text-base ${
+                          tx.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'
+                        }`}
+                      >
+                        {tx.type === 'IN' ? '+' : '-'}RM{' '}
+                        {tx.amount.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}
+                      </span>
+                      <div className="flex items-center justify-end gap-1.5 mt-1">
+                        <span className="text-[10px] text-slate-400">{tx.paymentMethod}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
         {/* Quick Shortcut Box & Info Card (1 col on lg) */}
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
               Tindakan Pantas Kewangan
             </h3>
 
             <div className="grid grid-cols-1 gap-2.5">
+              <button
+                onClick={() => onOpenNewTransaction('IN')}
+                className="w-full text-left p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 transition flex items-center justify-between text-emerald-900"
+              >
+                <div className="flex items-center gap-2.5">
+                  <PlusCircle className="w-5 h-5 text-emerald-600" />
+                  <div>
+                    <span className="block font-bold text-xs">
+                      Rekod Duit Masuk
+                    </span>
+                    <span className="text-[11px] text-emerald-700">
+                      Pilih sumber, sistem tentukan tabung automatik
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-emerald-600" />
+              </button>
+
+              <button
+                onClick={() => onOpenNewTransaction('OUT')}
+                className="w-full text-left p-3 rounded-xl bg-rose-50 hover:bg-rose-100/80 border border-rose-200 transition flex items-center justify-between text-rose-900"
+              >
+                <div className="flex items-center gap-2.5">
+                  <MinusCircle className="w-5 h-5 text-rose-600" />
+                  <div>
+                    <span className="block font-bold text-xs">
+                      Rekod Duit Keluar
+                    </span>
+                    <span className="text-[11px] text-rose-700">
+                      Bayaran bil, penyelenggaraan & program
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-rose-600" />
+              </button>
+
               <button
                 onClick={() => onNavigateTab('report')}
                 className="w-full text-left p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 transition flex items-center justify-between"
@@ -299,6 +428,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
+              </button>
+
+              <button
+                onClick={() => onNavigateTab('guidelines')}
+                className="w-full text-left p-3 rounded-xl bg-emerald-50/70 hover:bg-emerald-100/70 border border-emerald-200 transition flex items-center justify-between text-emerald-950"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Scale className="w-5 h-5 text-emerald-700 shrink-0" />
+                  <div>
+                    <span className="block font-bold text-xs text-emerald-900">
+                      Panduan Tabung Jabatan Agama
+                    </span>
+                    <span className="text-[11px] text-emerald-700">
+                      Hukum kenduri, pembangunan & kaedah syarak
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-emerald-700" />
               </button>
             </div>
           </div>

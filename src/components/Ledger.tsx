@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction } from '../types';
 import { Search, Filter, Pencil, Trash2, ArrowUpRight, ArrowDownRight, FileText, Download } from 'lucide-react';
+import { getTransactionFundCategory } from '../utils/fundCategory';
 
 interface LedgerProps {
   transactions: Transaction[];
@@ -43,6 +44,8 @@ export const Ledger: React.FC<LedgerProps> = ({
         !tx.refNo.toLowerCase().includes(searchLower) &&
         !tx.partyName.toLowerCase().includes(searchLower) &&
         !tx.category.toLowerCase().includes(searchLower) &&
+        !(tx.source && tx.source.toLowerCase().includes(searchLower)) &&
+        !(tx.purpose && tx.purpose.toLowerCase().includes(searchLower)) &&
         !tx.notes.toLowerCase().includes(searchLower)
       ) {
         return false;
@@ -70,17 +73,22 @@ export const Ledger: React.FC<LedgerProps> = ({
     if (filteredTransactions.length === 0) return;
 
     // Build CSV Content
-    const headers = ['Tarikh', 'No Rujukan', 'Jenis', 'Kategori', 'Kaedah Bayaran', 'Pihak/Syarikat', 'Jumlah (RM)', 'Nota'];
-    const rows = filteredTransactions.map(tx => [
-      tx.date,
-      tx.refNo,
-      tx.type === 'IN' ? 'Masuk' : 'Keluar',
-      `"${tx.category}"`,
-      tx.paymentMethod,
-      `"${tx.partyName || '-'}"`,
-      tx.amount.toFixed(2),
-      `"${tx.notes.replace(/"/g, '""') || '-'}"`
-    ]);
+    const headers = ['Tarikh', 'No Rujukan', 'Jenis', 'Sumber/Kategori', 'Tabung', 'Tujuan', 'Kaedah Bayaran', 'Pihak/Syarikat', 'Jumlah (RM)', 'Nota'];
+    const rows = filteredTransactions.map(tx => {
+      const fund = getTransactionFundCategory(tx);
+      return [
+        tx.date,
+        tx.refNo,
+        tx.type === 'IN' ? 'Masuk' : 'Keluar',
+        `"${(tx.source || tx.category).replace(/"/g, '""')}"`,
+        `"${fund}"`,
+        `"${(tx.purpose || '-').replace(/"/g, '""')}"`,
+        tx.paymentMethod,
+        `"${(tx.partyName || '-').replace(/"/g, '""')}"`,
+        tx.amount.toFixed(2),
+        `"${tx.notes.replace(/"/g, '""') || '-'}"`
+      ];
+    });
 
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     
@@ -199,19 +207,46 @@ export const Ledger: React.FC<LedgerProps> = ({
                       <div className="text-xs text-slate-500 font-mono mt-0.5">{tx.refNo}</div>
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        {tx.type === 'IN' ? (
-                          <ArrowDownRight className="w-4 h-4 text-emerald-500 shrink-0" />
-                        ) : (
-                          <ArrowUpRight className="w-4 h-4 text-rose-500 shrink-0" />
-                        )}
-                        <div>
-                          <div className="font-bold text-slate-800">{tx.category}</div>
-                          <div className="text-xs text-slate-500 truncate max-w-xs" title={tx.notes || tx.partyName}>
-                            {tx.partyName} {tx.notes && `• ${tx.notes}`}
+                      {(() => {
+                        const fund = getTransactionFundCategory(tx);
+                        return (
+                          <div className="flex items-start gap-2.5">
+                            {tx.type === 'IN' ? (
+                              <ArrowDownRight className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                            ) : (
+                              <ArrowUpRight className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                            )}
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-bold text-slate-900">
+                                  {tx.source || tx.category}
+                                </span>
+                                <span
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                    fund === 'Tabung Pembangunan'
+                                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                      : fund === 'Dana Khas'
+                                      ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                      : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                  }`}
+                                >
+                                  {fund}
+                                </span>
+                              </div>
+                              {tx.purpose && (
+                                <div className="text-xs text-slate-600 font-medium italic">
+                                  Tujuan: {tx.purpose}
+                                </div>
+                              )}
+                              <div className="text-xs text-slate-500 truncate max-w-xs" title={tx.notes || tx.partyName}>
+                                {tx.partyName && <span className="font-medium text-slate-700">{tx.partyName}</span>}
+                                {tx.partyName && tx.notes && ' • '}
+                                {tx.notes}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        );
+                      })()}
                     </td>
                     <td className="p-4">
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">

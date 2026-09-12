@@ -11,7 +11,7 @@ dotenv.config();
 import * as admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 
-let adminApp: admin.app.App | null = null;
+let adminApp: admin.App | any = null;
 
 function getAdminDb() {
   if (!adminApp) {

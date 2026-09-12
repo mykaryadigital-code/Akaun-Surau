@@ -32,12 +32,30 @@ export interface OpeningBalances {
   cash: number;
 }
 
+export type FundCategory = 'Tabung Am' | 'Tabung Pembangunan' | 'Dana Khas';
+
+export interface AuditLogEntry {
+  timestamp: number;
+  date: string;
+  action: string;
+  originalSuggested: string;
+  chosenCategory: string;
+  notes?: string;
+}
+
 export interface Transaction {
   id: string;
   refNo: string;
   date: string; // YYYY-MM-DD
   type: TransactionType;
   category: string;
+  fundCategory?: FundCategory;
+  source?: string;
+  hasSpecificPurpose?: boolean;
+  purpose?: string;
+  fundName?: string;
+  isCategoryOverridden?: boolean;
+  overrideAuditLog?: AuditLogEntry[];
   amount: number;
   paymentMethod: PaymentMethod;
   partyName: string; // Pembayar or Penerima

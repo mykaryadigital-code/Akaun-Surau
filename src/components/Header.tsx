@@ -20,6 +20,7 @@ import {
   Moon,
   Sun,
   BadgeCheck,
+  Scale,
 } from 'lucide-react';
 import { AppSettings, AppTheme, Transaction } from '../types';
 import { getTheme, THEMES } from '../utils/theme';
@@ -87,6 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'dashboard', label: 'Papan Pemuka', icon: LayoutDashboard },
     { id: 'ledger', label: 'Buku Tunai', icon: BookOpenCheck },
     { id: 'report', label: 'Penyata Kewangan', icon: FileSpreadsheet },
+    { id: 'guidelines', label: 'Panduan Jabatan Agama', icon: Scale },
   ];
 
   const isWhite = theme.id === 'white';

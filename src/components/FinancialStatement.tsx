@@ -73,7 +73,12 @@ export const FinancialStatement: React.FC<FinancialStatementProps> = ({
   const inCategoryTotals = useMemo(() => {
     const map: Record<string, number> = {};
     monthIn.forEach((t) => {
-      map[t.category] = (map[t.category] || 0) + t.amount;
+      const label = t.source
+        ? t.purpose
+          ? `${t.source} - ${t.purpose} (${t.category})`
+          : `${t.source} (${t.category})`
+        : t.category;
+      map[label] = (map[label] || 0) + t.amount;
     });
     return map;
   }, [monthIn]);
